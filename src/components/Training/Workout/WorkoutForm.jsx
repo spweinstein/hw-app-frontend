@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   workoutSchema,
@@ -36,6 +36,8 @@ export default function WorkoutForm({
 
   const { register, handleSubmit, reset, formState, control } = form;
   const { errors } = formState;
+  const status = useWatch({ control, name: "status" });
+  const isCompleted = status === "completed";
 
   useEffect(() => {
     reset(workoutDefaultsFromProps(defaultValues));
@@ -205,6 +207,7 @@ export default function WorkoutForm({
         exercises={exercises}
         disabled={isSubmitting}
         notesFieldIdPrefix="workout-item-notes"
+        isCompleted={isCompleted}
       />
 
       <div className="sticky bottom-0 z-10 -mx-2 mt-2 border-t border-border/80 bg-background py-3 backdrop-blur-sm supports-backdrop-filter:bg-background/95">

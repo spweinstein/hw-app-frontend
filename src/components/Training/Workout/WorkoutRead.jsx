@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { getWorkout } from "@/src/services/workoutService.js";
-import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { DialogFooter } from "@/components/ui/dialog";
 
 function createExerciseBlurb(item) {
   let ret = "";
@@ -41,6 +37,27 @@ const STATUS_LABEL = {
   skipped: "Skipped",
   canceled: "Canceled",
 };
+
+const STATUS_BADGE_VARIANT = {
+  planned: "outline",
+  completed: "default",
+  skipped: "secondary",
+  canceled: "destructive",
+};
+
+function rpeValuesFromItems(items) {
+  if (!items?.length) return [];
+  return items
+    .map((i) => i.rpe)
+    .filter((r) => r != null && Number(r) >= 1);
+}
+
+function formatAvgRpe(values) {
+  if (!values.length) return null;
+  const mean = values.reduce((a, b) => a + Number(b), 0) / values.length;
+  const rounded = Math.round(mean * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+}
 
 export default function WorkoutRead({ workoutId }) {
   const [workout, setWorkout] = useState(null);
@@ -80,6 +97,14 @@ export default function WorkoutRead({ workoutId }) {
       <p className="text-muted-foreground py-2 text-sm">Workout not found.</p>
     );
 
+  const statusKey = workout.status ?? "";
+  const statusVariant =
+    STATUS_BADGE_VARIANT[statusKey] ?? "secondary";
+  const rpeList = rpeValuesFromItems(workout.items);
+  const avgRpe = formatAvgRpe(rpeList);
+  const showRpeSummary =
+    workout.status === "completed" && avgRpe != null;
+
   return (
     <>
       <div>
@@ -87,9 +112,14 @@ export default function WorkoutRead({ workoutId }) {
         <p className="text-sm text-muted-foreground">
           {formatRange(workout.start_dt, workout.end_dt)}
         </p>
-        <p className="text-sm text-muted-foreground">
-          Status: {STATUS_LABEL[workout.status] ?? workout.status ?? "—"}
-        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <Badge variant={statusVariant}>
+            {STATUS_LABEL[statusKey] ?? (statusKey || "—")}
+          </Badge>
+          {showRpeSummary ? (
+            <Badge variant="outline">Avg RPE {avgRpe}</Badge>
+          ) : null}
+        </div>
         {workout.notes ? (
           <p className="text-sm text-muted-foreground">{workout.notes}</p>
         ) : null}
@@ -111,13 +141,18 @@ export default function WorkoutRead({ workoutId }) {
               key={item.id ?? index}
               className="rounded-lg border border-border/80 bg-muted/20 px-3 py-2"
             >
-              <div className="flex flex-wrap items-baseline gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-muted-foreground text-xs font-medium tabular-nums">
                   #{index + 1}
                 </span>
                 <span className="font-medium">
                   {item.exercise_detail?.name || "Exercise"}
                 </span>
+                {item.rpe != null && Number(item.rpe) >= 1 ? (
+                  <Badge variant="secondary" className="tabular-nums">
+                    RPE {item.rpe}
+                  </Badge>
+                ) : null}
               </div>
               <p className="mt-1 text-sm text-foreground/90">
                 {createExerciseBlurb(item)}

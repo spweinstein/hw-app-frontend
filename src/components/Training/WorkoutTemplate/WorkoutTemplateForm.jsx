@@ -161,6 +161,7 @@ export default function WorkoutTemplateForm({
         register={register}
         exercises={exercises}
         disabled={isSubmitting}
+        isCompleted={false}
       />
 
       <div className="sticky bottom-0 z-10 -mx-2 mt-2 border-t border-border/80 bg-background py-3 backdrop-blur-sm supports-backdrop-filter:bg-background/95">

@@ -47,6 +47,13 @@ export const toIsoStringOrNull = (value) => {
   return date.toISOString();
 };
 
+/** RPE 1–10 only; empty or slider "unset" (0) → null for API */
+export const parseRpeField = (value) => {
+  const n = parseNumericField(value);
+  if (n == null || n < 1) return null;
+  return n;
+};
+
 /**
  * Prepare item data for API submission
  */
@@ -60,7 +67,7 @@ export const prepareItemData = (item, index) => ({
   distance: parseNumericField(item.distance),
   distance_unit: item.distance_unit || "km",
   duration: parseNumericField(item.duration),
-  rpe: parseNumericField(item.rpe),
+  rpe: parseRpeField(item.rpe),
   notes: item.notes || "",
   order: index,
 });
