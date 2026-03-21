@@ -1,0 +1,143 @@
+:root {
+  --bg-color: #fcfcfc;
+  --text-dark: #111111;
+  --text-muted: #555555;
+  --accent-teal: #006d77;
+  --accent-soft: #e6f2f3;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.explore-container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: "Inter", sans-serif;
+  background-color: var(--bg-color);
+  min-height: 100vh;
+}
+
+.explore-header h2 {
+  font-family: "Outfit", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.explore-header p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+}
+
+.explore-section {
+  margin-top: 48px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 10px;
+}
+
+.section-header h3 {
+  font-family: "Outfit", sans-serif;
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.view-all-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent-teal);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
+  opacity: 0.8;
+}
+
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.explore-card {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.explore-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  border-color: var(--accent-teal);
+}
+
+.explore-card h4 {
+  margin: 0 0 12px 0;
+  font-family: "Outfit", sans-serif;
+  font-size: 1.2rem;
+}
+
+.explore-card h4 a {
+  text-decoration: none;
+  color: var(--text-dark);
+  transition: color 0.2s;
+}
+
+.explore-card h4 a:hover {
+  color: var(--accent-teal);
+}
+
+.explore-card p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.card-meta {
+  margin-top: auto;
+  padding-top: 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-teal);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  text-align: center;
+}
+
+.error-state p {
+  color: #d93025;
+  background: #fdf2f2;
+  padding: 12px 24px;
+  border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+  .explore-grid {
+    grid-template-columns: 1fr;
+  }
+}

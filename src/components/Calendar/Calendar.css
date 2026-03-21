@@ -1,0 +1,198 @@
+/* Page layout */
+.calendar-page {
+    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  }
+  
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+  
+  .calendar-header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+  }
+  
+  .calendar-header p {
+    margin: 4px 0 0;
+    color: #555;
+    font-size: 0.95rem;
+  }
+  
+  .calendar-primary-btn {
+    background: #006d77;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  
+  .calendar-primary-btn:hover {
+    background: #005460;
+  }
+  
+  .calendar-loading {
+    margin-bottom: 8px;
+    color: #777;
+  }
+  
+  /* Legend */
+  .calendar-legend {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    display: inline-block;
+    margin-right: 4px;
+  }
+  
+  .legend-dot.planned {
+    background: #38bdf8;
+  }
+  
+  .legend-dot.completed {
+    background: #22c55e;
+  }
+  
+  .legend-dot.skipped {
+    background: #f97373;
+  }
+  
+  /* FullCalendar chrome tweaks */
+  .fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 12px;
+  }
+  
+  .fc .fc-toolbar-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .fc .fc-button {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    color: #111827;
+    text-transform: none;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+  
+  .fc .fc-button-primary:not(:disabled).fc-button-active,
+  .fc .fc-button-primary:not(:disabled):active {
+    background: #006d77;
+    border-color: #006d77;
+  }
+  
+  .fc .fc-daygrid-day-frame {
+    padding: 4px;
+  }
+  
+  /* Event status styling */
+  .workout-event {
+    border-radius: 6px !important;
+    font-size: 0.75rem;
+    padding: 2px 4px;
+  }
+  
+  /* adjust colors as desired */
+  .workout-status-planned {
+    background-color: #e0f2fe !important;
+    border-color: #38bdf8 !important;
+    color: #0369a1 !important;
+  }
+  
+  .workout-status-completed {
+    background-color: #dcfce7 !important;
+    border-color: #22c55e !important;
+    color: #166534 !important;
+  }
+  
+  .workout-status-skipped,
+  .workout-status-canceled {
+    background-color: #fee2e2 !important;
+    border-color: #f97373 !important;
+    color: #b91c1c !important;
+  }
+  
+  /* Popover */
+  .workout-popover {
+    position: fixed;
+    transform: translate(-50%, -10px);
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+    z-index: 1000;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .popover-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .popover-btn.primary {
+    background: #0ea5e9;
+    color: #fff;
+  }
+  
+  .popover-btn.success {
+    background: #22c55e;
+    color: #fff;
+  }
+  
+  .popover-btn.danger {
+    background: #ef4444;
+    color: #fff;
+  }
+  
+  .popover-btn.muted {
+    background: #e5e7eb;
+    color: #111827;
+  }
+  
+  .popover-btn:hover {
+    filter: brightness(0.95);
+  }
+  
+  /* Mobile tweaks */
+  @media (max-width: 768px) {
+    .calendar-page {
+      padding: 16px;
+    }
+  
+    .calendar-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .calendar-primary-btn {
+      align-self: stretch;
+      text-align: center;
+    }
+  }
