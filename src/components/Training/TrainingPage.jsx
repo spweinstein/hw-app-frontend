@@ -7,15 +7,23 @@ import { getExercises } from "@/src/services/exerciseService.js";
 export default function TrainingPage() {
   const [calendarRefreshNonce, setCalendarRefreshNonce] = useState(0);
   const [exercises, setExercises] = useState([]);
+  const [exercisesError, setExercisesError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
+    setExercisesError("");
     (async () => {
       try {
         const data = await getExercises();
-        if (!cancelled) setExercises(Array.isArray(data) ? data : []);
+        if (!cancelled) {
+          setExercises(Array.isArray(data) ? data : []);
+          setExercisesError("");
+        }
       } catch {
-        if (!cancelled) throw new Error("Could not load exercises.");
+        if (!cancelled) {
+          setExercises([]);
+          setExercisesError("Could not load exercises.");
+        }
       }
     })();
     return () => {
@@ -35,6 +43,12 @@ export default function TrainingPage() {
   return (
     <div className="flex flex-col gap-10 px-4 py-8">
       <h1 className="text-3xl font-semibold tracking-tight">Training</h1>
+
+      {exercisesError ? (
+        <p className="text-destructive text-sm" role="alert">
+          {exercisesError}
+        </p>
+      ) : null}
 
       <WorkoutTemplatePicker
         scope="user"

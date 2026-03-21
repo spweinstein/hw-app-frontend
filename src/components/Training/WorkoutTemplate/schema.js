@@ -20,8 +20,13 @@ export const templateExerciseRowSchema = z.object({
 
 export const workoutTemplateSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
-  description: z.string().trim().min(1, "Description is required"),
-  duration: z.coerce.number().min(1, "Duration is required"),
+  // Match API: description may be blank; avoid rejecting legacy rows on load/save.
+  description: z.string().trim(),
+  // Form keeps string/number from inputs or API; empty or non-numeric is OK here — toApiShape sends null when not finite.
+  duration: z.preprocess(
+    (val) => (val === null || val === undefined ? "" : val),
+    z.union([z.string(), z.number()]),
+  ).transform((val) => (val === "" ? "" : String(val))),
   items: z.array(templateExerciseRowSchema),
 });
 

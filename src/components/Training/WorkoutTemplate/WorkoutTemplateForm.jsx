@@ -113,7 +113,6 @@ export default function WorkoutTemplateForm({
               ? "workout-template-description-error"
               : undefined
           }
-          required={true}
           {...register("description")}
         />
         {errors.description?.message ? (
@@ -136,7 +135,7 @@ export default function WorkoutTemplateForm({
         <Input
           id="workout-template-duration"
           type="number"
-          min={1}
+          min={0}
           disabled={isSubmitting}
           className="h-8"
           aria-invalid={Boolean(errors.duration)}
@@ -145,7 +144,6 @@ export default function WorkoutTemplateForm({
               ? "workout-template-duration-error"
               : undefined
           }
-          required={true}
           {...register("duration")}
         />
         {errors.duration?.message ? (

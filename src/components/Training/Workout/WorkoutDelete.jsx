@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { deleteWorkout } from "@/src/services/workoutService.js";
 import {
   AlertDialog,
@@ -13,16 +14,22 @@ import {
 export default function WorkoutDelete({ workout, onClose, onDeleted, onError }) {
   const open = workout != null;
   const label = formatTitle(workout);
+  const isDeletingRef = useRef(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleConfirm = async () => {
-    if (!workout) return;
+    if (!workout || isDeletingRef.current) return;
     const id = workout.id;
-    onClose();
+    isDeletingRef.current = true;
+    setIsDeleting(true);
     try {
       await deleteWorkout(id);
       onDeleted(id);
     } catch {
       onError?.("Delete failed. Try again.");
+    } finally {
+      isDeletingRef.current = false;
+      setIsDeleting(false);
     }
   };
 
@@ -30,6 +37,7 @@ export default function WorkoutDelete({ workout, onClose, onDeleted, onError }) 
     <AlertDialog
       open={open}
       onOpenChange={(next) => {
+        if (!next && isDeletingRef.current) return;
         if (!next) onClose();
       }}
     >
@@ -42,13 +50,19 @@ export default function WorkoutDelete({ workout, onClose, onDeleted, onError }) 
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
+          <AlertDialogCancel size="sm" disabled={isDeleting}>
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             size="sm"
-            onClick={() => void handleConfirm()}
+            disabled={isDeleting}
+            onClick={(e) => {
+              e.preventDefault();
+              void handleConfirm();
+            }}
           >
-            Delete
+            {isDeleting ? "Deleting…" : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
