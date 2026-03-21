@@ -36,6 +36,7 @@ export default function WorkoutTemplateSchedulerPopover({
   const [date, setDate] = useState(() => toDateInputValue(new Date()));
   const [time, setTime] = useState("09:00");
   const [error, setError] = useState("");
+  const [isScheduling, setIsScheduling] = useState(false);
 
   const handleOpenChange = (next) => {
     setOpen(next);
@@ -59,19 +60,25 @@ export default function WorkoutTemplateSchedulerPopover({
   }
 
   const confirm = async () => {
+    const SCHEDULE_FAILED = "Could not schedule workout.";
+    if (!template) return;
+    setError("");
+    const startISO = combineLocalDateTimeToISO(date, time);
+    if (!startISO) {
+      setError(SCHEDULE_FAILED);
+      return;
+    }
+    setIsScheduling(true);
     try {
-      if (!template) return;
-      const startISO = combineLocalDateTimeToISO(date, time);
-      if (!startISO) {
-        throw new Error("Invalid date or time");
-      }
-      await onSchedule(template, { startISO });
-      setOpen(false);
+      const result = await onSchedule(template, { startISO });
+
       setDate(toDateInputValue(new Date()));
       setTime("09:00");
-    } catch (error) {
-      setError(scheduleErrorMessage(error));
-      // throw error;
+      setOpen(false);
+    } catch {
+      setError(SCHEDULE_FAILED);
+    } finally {
+      setIsScheduling(false);
     }
   };
 

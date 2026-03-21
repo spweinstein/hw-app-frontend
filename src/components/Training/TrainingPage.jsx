@@ -24,13 +24,8 @@ export default function TrainingPage() {
   }, []);
 
   const handleSchedule = useCallback(async (template, { startISO }) => {
-    try {
-      await scheduleWorkoutFromTemplate(template.id, { start_dt: startISO });
-      setCalendarRefreshNonce((n) => n + 1);
-    } catch (error) {
-      console.error("Error scheduling workout:", error);
-      return { success: false, error: error.message };
-    }
+    await scheduleWorkoutFromTemplate(template.id, { start_dt: startISO });
+    setCalendarRefreshNonce((n) => n + 1);
   }, []);
 
   const handleWorkoutMutated = useCallback(() => {

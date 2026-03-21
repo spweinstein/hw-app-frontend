@@ -1,6 +1,5 @@
-
-import * as React from "react"
-import { Link } from "react-router"
+import * as React from "react";
+import { Link } from "react-router";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -9,10 +8,9 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "../../../components/ui/navigation-menu"
-import { NavLink } from "react-router"
+} from "../../../components/ui/navigation-menu";
+import { NavLink } from "react-router";
 import { UserContext } from "../../contexts/UserContext.jsx";
-
 
 export default function NavBar() {
   const { user, setUser } = React.useContext(UserContext);
@@ -25,17 +23,20 @@ export default function NavBar() {
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <NavLink to="/" className={navigationMenuTriggerStyle()}>Home</NavLink>
+            <NavLink to="/" className={navigationMenuTriggerStyle()}>
+              Home
+            </NavLink>
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <NavLink to="/explore" className={navigationMenuTriggerStyle()}>Explore</NavLink>
+            <NavLink to="/explore" className={navigationMenuTriggerStyle()}>
+              Explore
+            </NavLink>
           </NavigationMenuLink>
         </NavigationMenuItem>
 
-        { user ? 
-          (
+        {user ? (
           <>
             <NavigationMenuItem>
               <NavigationMenuTrigger>Training</NavigationMenuTrigger>
@@ -43,63 +44,64 @@ export default function NavBar() {
                 <ul className="w-96">
                   <NavigationMenuItem>
                     <NavigationMenuLink asChild className="w-full">
-                      <NavLink to="/training">Training</NavLink>
+                      <NavLink to="/training">My Training</NavLink>
                     </NavigationMenuLink>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
-                  <NavigationMenuLink  asChild className="w-full">
-                    <NavLink to="/workouts">My Workouts</NavLink>
-                  </NavigationMenuLink>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                  <NavigationMenuLink asChild className="w-full">
-                    <NavLink to="/plans">My Plans</NavLink>
-                  </NavigationMenuLink>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                  <NavigationMenuLink asChild className="w-full">
-                    <NavLink to="/templates">My Templates</NavLink>
-                  </NavigationMenuLink>
+                    <NavigationMenuLink asChild className="w-full">
+                      <NavLink to="/exercises">Exercises</NavLink>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+              <NavigationMenuLink
+                asChild
+                className={navigationMenuTriggerStyle()}
+              >
                 <Link href="/docs">Docs</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+              <NavigationMenuLink
+                asChild
+                className={navigationMenuTriggerStyle()}
+              >
                 <button onClick={handleSignOut}>Sign Out</button>
               </NavigationMenuLink>
             </NavigationMenuItem>
           </>
         ) : (
           <>
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-              <NavLink to="/sign-in" className={navigationMenuTriggerStyle()}>Sign In</NavLink>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-          <NavigationMenuItem>
-            <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-              <NavLink to="/sign-up" className={navigationMenuTriggerStyle()}>Sign Up</NavLink>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                asChild
+                className={navigationMenuTriggerStyle()}
+              >
+                <NavLink to="/sign-in" className={navigationMenuTriggerStyle()}>
+                  Sign In
+                </NavLink>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                asChild
+                className={navigationMenuTriggerStyle()}
+              >
+                <NavLink to="/sign-up" className={navigationMenuTriggerStyle()}>
+                  Sign Up
+                </NavLink>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
           </>
         )}
       </NavigationMenuList>
     </NavigationMenu>
-  )
+  );
 }
 
-function ListItem({
-  title,
-  children,
-  href,
-  ...props
-}) {
+function ListItem({ title, children, href, ...props }) {
   return (
     <li {...props}>
       <NavigationMenuLink asChild>
@@ -111,5 +113,5 @@ function ListItem({
         </Link>
       </NavigationMenuLink>
     </li>
-  )
+  );
 }
