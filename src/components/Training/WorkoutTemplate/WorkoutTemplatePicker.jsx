@@ -124,14 +124,20 @@ export default function WorkoutTemplatePicker({
 
   return (
     <div className={cn("space-y-2", className)}>
-      <div className="flex flex-row gap-2">
-        {showHeading ? (
-          <h2 className="text-lg font-semibold tracking-tight">Templates</h2>
-        ) : null}
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2">
+        <div className="min-w-0 flex-1">
+          {showHeading ? (
+            <h2 className="text-lg font-semibold tracking-tight">Templates</h2>
+          ) : null}
+          <p className="text-muted-foreground text-xs leading-snug">
+            Reusable routines you can schedule on the calendar or attach to
+            plans.
+          </p>
+        </div>
         <Button
           variant="outline"
           size="sm"
-          className="ml-auto"
+          className="shrink-0 sm:ml-auto"
           title="Create a new reusable workout template"
           onClick={() => {
             setModalTemplateId(null);
@@ -139,7 +145,7 @@ export default function WorkoutTemplatePicker({
           }}
         >
           <Plus className="size-4" />
-          New Template
+          New template
         </Button>
       </div>
 

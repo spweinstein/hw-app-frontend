@@ -1,3 +1,5 @@
+
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -17,6 +19,7 @@ import WorkoutRead from "../Training/Workout/WorkoutRead.jsx";
 import WorkoutCreate from "../Training/Workout/WorkoutCreate.jsx";
 import WorkoutEdit from "../Training/Workout/WorkoutEdit.jsx";
 import WorkoutDelete from "../Training/Workout/WorkoutDelete.jsx";
+import CalendarBulkDelete from "./CalendarBulkDelete.jsx";
 
 const MOBILE_MQ = "(max-width: 767px)";
 
@@ -57,6 +60,7 @@ export default function Calendar({
     workoutId: null,
   });
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [bulkDeleteIds, setBulkDeleteIds] = useState(null);
   const calendarRef = useRef(null);
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== "undefined" && window.matchMedia(MOBILE_MQ).matches,
@@ -74,12 +78,12 @@ export default function Calendar({
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  useEffect(() => {
-    if (!calendarRef.current) return;
-    calendarRef.current
-      .getApi()
-      .changeView(isMobile ? "timeGridWeek" : "dayGridMonth");
-  }, [isMobile]);
+  // useEffect(() => {
+  //   if (!calendarRef.current) return;
+  //   calendarRef.current
+  //     .getApi()
+  //     .changeView(isMobile ? "timeGridWeek" : "dayGridMonth");
+  // }, [isMobile]);
 
   const fetchWorkouts = useCallback(async (start, end) => {
     setLoading(true);
@@ -173,129 +177,166 @@ export default function Calendar({
       console.error(error);
     }
   };
+  let headerToolbar = null;
+  if (isMobile) {
+    headerToolbar = {
+      left: "prev,next",
+      right:
+        "dayGridMonth,timeGridWeek,timeGridDay createWorkout clearSelection",
+    };
+  } else {
+    headerToolbar = {
+      left: "prev,next today",
+      center: "title",
+      right:
+        "dayGridMonth,timeGridWeek,timeGridDay createWorkout clearSelection",
+    };
+  }
 
   return (
-    <section className="relative flex flex-col gap-3">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-xl font-semibold tracking-tight">
-          Workout schedule
-        </h2>
-        {loading ? (
-          <span className="text-muted-foreground text-sm" aria-live="polite">
-            Loading…
-          </span>
-        ) : null}
-      </div>
+    headerToolbar && (
+      <section className="relative flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-xl font-semibold tracking-tight">
+            Workout schedule
+          </h2>
+          {loading ? (
+            <span className="text-muted-foreground text-sm" aria-live="polite">
+              Loading…
+            </span>
+          ) : null}
+        </div>
 
-      <div
-        className={cn(
-          "border-border bg-background relative overflow-hidden rounded-lg border",
-          "h-[min(75vh,44rem)] min-h-[22rem] sm:min-h-[26rem]",
-          loading && "opacity-60",
-        )}
-        aria-busy={loading}
-      >
-        <FullCalendar
-          ref={calendarRef}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView={isMobile ? "timeGridWeek" : "dayGridMonth"}
-          height="100%"
-          events={events}
-          datesSet={handleDatesSet}
-          editable
-          eventClick={handleEventClick}
-          eventDrop={handleEventDrop}
-          eventResize={handleEventResize}
-          selectable
-          dayMaxEvents={3}
-          moreLinkClick="popover"
-          expandRows={false}
-          handleWindowResize
-          headerToolbar={{
-            left: isMobile ? "prev,next" : "prev,next today",
-            center: "title",
-            right: isMobile
-              ? "timeGridWeek,timeGridDay createWorkout"
-              : "dayGridMonth,timeGridWeek,timeGridDay createWorkout",
+        <div
+          className={cn(
+            "border-border bg-background relative overflow-hidden rounded-lg border",
+            "h-[min(75vh,44rem)] min-h-[22rem] sm:min-h-[26rem]",
+            loading && "opacity-60",
+          )}
+          aria-busy={loading}
+        >
+          <FullCalendar
+            ref={calendarRef}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView="dayGridMonth"
+            height="100%"
+            events={events}
+            datesSet={handleDatesSet}
+            editable
+            eventClick={handleEventClick}
+            eventDrop={handleEventDrop}
+            eventResize={handleEventResize}
+            selectable
+            dayMaxEvents={3}
+            moreLinkClick="popover"
+            expandRows={false}
+            handleWindowResize
+            headerToolbar={headerToolbar}
+            customButtons={{
+              createWorkout: {
+                text: "+ Workout",
+                click: () => setDialog({ mode: "create", workoutId: null }),
+              },
+              clearSelection: {
+                text: "Clear",
+                hint: "Delete all workouts in the current calendar view",
+                click: () => {
+                  if (!events.length) {
+                    alert(
+                      "No workouts to delete in the current calendar view.",
+                    );
+                    return;
+                  }
+                  setBulkDeleteIds([
+                    ...new Set(events.map((e) => String(e.id))),
+                  ]);
+                },
+              },
+            }}
+          />
+        </div>
+
+        <WorkoutSummaryPopover
+          open={popover.open}
+          onOpenChange={(next) => {
+            if (!next) closePopover();
           }}
-          customButtons={{
-            createWorkout: {
-              text: "+ Workout",
-              click: () => setDialog({ mode: "create", workoutId: null }),
-            },
-          }}
+          anchorPosition={{ x: popover.x, y: popover.y }}
+          workoutId={popover.workoutId}
+          onViewDetails={(w) =>
+            setDialog({ mode: "view", workoutId: String(w.id) })
+          }
+          onEdit={(w) => setDialog({ mode: "edit", workoutId: String(w.id) })}
+          onRequestDelete={(w) => setDeleteTarget(w)}
         />
-      </div>
 
-      <WorkoutSummaryPopover
-        open={popover.open}
-        onOpenChange={(next) => {
-          if (!next) closePopover();
-        }}
-        anchorPosition={{ x: popover.x, y: popover.y }}
-        workoutId={popover.workoutId}
-        onViewDetails={(w) =>
-          setDialog({ mode: "view", workoutId: String(w.id) })
-        }
-        onEdit={(w) => setDialog({ mode: "edit", workoutId: String(w.id) })}
-        onRequestDelete={(w) => setDeleteTarget(w)}
-      />
+        <Dialog
+          open={workoutDialogOpen}
+          onOpenChange={(open) => {
+            if (!open) closeWorkoutDialog();
+          }}
+        >
+          <DialogContent className="flex max-h-[min(90vh,720px)] w-full flex-col gap-4 overflow-hidden p-6 sm:max-w-3xl">
+            <DialogTitle className="shrink-0">
+              {dialog.mode === "edit"
+                ? "Edit workout"
+                : dialog.mode === "create"
+                  ? "Create workout"
+                  : "View workout"}
+            </DialogTitle>
+            <DialogDescription
+              className="sr-only"
+              id="workout-instance-dialog-description"
+            >
+              {dialog.mode === "edit"
+                ? "Edit this scheduled workout"
+                : dialog.mode === "create"
+                  ? "Create a new workout on your calendar"
+                  : "View this scheduled workout"}
+            </DialogDescription>
 
-      <Dialog
-        open={workoutDialogOpen}
-        onOpenChange={(open) => {
-          if (!open) closeWorkoutDialog();
-        }}
-      >
-        <DialogContent className="flex max-h-[min(90vh,720px)] w-full flex-col gap-4 overflow-hidden p-6 sm:max-w-3xl">
-          <DialogTitle className="shrink-0">
-            {dialog.mode === "edit"
-              ? "Edit workout"
-              : dialog.mode === "create"
-                ? "Create workout"
-                : "View workout"}
-          </DialogTitle>
-          <DialogDescription
-            className="sr-only"
-            id="workout-instance-dialog-description"
-          >
-            {dialog.mode === "edit"
-              ? "Edit this scheduled workout"
-              : dialog.mode === "create"
-                ? "Create a new workout on your calendar"
-                : "View this scheduled workout"}
-          </DialogDescription>
+            <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+              {dialog.mode === "edit" && dialog.workoutId != null ? (
+                <WorkoutEdit
+                  workoutId={dialog.workoutId}
+                  exercises={exercises}
+                  onClose={closeWorkoutDialog}
+                  onSave={handleSaved}
+                />
+              ) : dialog.mode === "create" ? (
+                <WorkoutCreate
+                  exercises={exercises}
+                  onClose={closeWorkoutDialog}
+                  onSave={handleSaved}
+                />
+              ) : dialog.mode === "view" && dialog.workoutId != null ? (
+                <WorkoutRead workoutId={dialog.workoutId} />
+              ) : null}
+            </div>
+          </DialogContent>
+        </Dialog>
 
-          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-            {dialog.mode === "edit" && dialog.workoutId != null ? (
-              <WorkoutEdit
-                workoutId={dialog.workoutId}
-                exercises={exercises}
-                onClose={closeWorkoutDialog}
-                onSave={handleSaved}
-              />
-            ) : dialog.mode === "create" ? (
-              <WorkoutCreate
-                exercises={exercises}
-                onClose={closeWorkoutDialog}
-                onSave={handleSaved}
-              />
-            ) : dialog.mode === "view" && dialog.workoutId != null ? (
-              <WorkoutRead workoutId={dialog.workoutId} />
-            ) : null}
-          </div>
-        </DialogContent>
-      </Dialog>
+        <WorkoutDelete
+          workout={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onDeleted={() => {
+            setDeleteTarget(null);
+            bumpCalendar();
+          }}
+          onError={(msg) => alert(msg)}
+        />
 
-      <WorkoutDelete
-        workout={deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-        onDeleted={() => {
-          setDeleteTarget(null);
-          bumpCalendar();
-        }}
-        onError={(msg) => alert(msg)}
-      />
-    </section>
+        <CalendarBulkDelete
+          ids={bulkDeleteIds}
+          onClose={() => setBulkDeleteIds(null)}
+          onDeleted={() => {
+            setBulkDeleteIds(null);
+            calendarRef.current?.getApi()?.unselect();
+            bumpCalendar();
+          }}
+          onError={(msg) => alert(msg)}
+        />
+      </section>
+    )
   );
 }

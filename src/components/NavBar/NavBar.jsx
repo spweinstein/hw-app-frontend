@@ -60,7 +60,9 @@ export default function NavBar() {
                 asChild
                 className={navigationMenuTriggerStyle()}
               >
-                <Link href="/docs">Docs</Link>
+                <NavLink to="/profile" className={navigationMenuTriggerStyle()}>
+                  Profile
+                </NavLink>
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
