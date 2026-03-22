@@ -37,7 +37,7 @@ export default function WorkoutForm({
   const { register, handleSubmit, reset, formState, control } = form;
   const { errors } = formState;
   const status = useWatch({ control, name: "status" });
-  const isCompleted = status === "completed";
+  const isCompleted = status && status.toLowerCase() === "completed";
 
   useEffect(() => {
     reset(workoutDefaultsFromProps(defaultValues));

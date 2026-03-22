@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { getTemplates } from "@/src/services/templateService.js";
+import { getPlans } from "@/src/services/planService.js";
 import { UserContext } from "@/src/contexts/UserContext.jsx";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -18,11 +18,11 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
-import WorkoutTemplateRead from "./WorkoutTemplateRead.jsx";
-import WorkoutTemplateEdit from "./WorkoutTemplateEdit.jsx";
-import WorkoutTemplateCreate from "./WorkoutTemplateCreate.jsx";
-import WorkoutTemplateDelete from "./WorkoutTemplateDelete.jsx";
-import WorkoutTemplateSchedulerPopover from "./WorkoutTemplateSchedulerPopover.jsx";
+import WorkoutPlanRead from "./WorkoutPlanRead.jsx";
+import WorkoutPlanEdit from "./WorkoutPlanEdit.jsx";
+import WorkoutPlanCreate from "./WorkoutPlanCreate.jsx";
+import WorkoutPlanDelete from "./WorkoutPlanDelete.jsx";
+import WorkoutPlanGenerateDialog from "./WorkoutPlanGenerateDialog.jsx";
 import { Eye, Pencil, Trash2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,40 +30,41 @@ function suppressFocusSteal(e) {
   e.preventDefault();
 }
 
-function templateLabel(t) {
-  if (t == null) return "";
-  return String(t.title ?? t.name ?? "Untitled").trim() || "Untitled";
+function planLabel(p) {
+  if (p == null) return "";
+  return String(p.title ?? p.name ?? "Untitled").trim() || "Untitled";
 }
 
-function comboboxFilter(item, query, toString = templateLabel) {
+function comboboxFilter(item, query, toString = planLabel) {
   const q = query.trim().toLowerCase();
   if (!q) return true;
   return toString(item).toLowerCase().includes(q);
 }
 
-export default function WorkoutTemplatePicker({
+export default function WorkoutPlanPicker({
   scope = "user",
   className = "",
-  onSchedule,
-  exercises,
-  /** When false, omit the section h2 (e.g. inside an accordion trigger). */
+  /** When false, omit the Plans h2 (e.g. inside an accordion trigger). */
   showHeading = true,
+  /** Passed to plan forms when loading template dropdowns (`all` = yours + public). */
+  templateScope = "all",
+  onPlanGenerated,
 }) {
   const { user } = useContext(UserContext);
-  const [templates, setTemplates] = useState([]);
+  const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selected, setSelected] = useState(null);
-  const [modalTemplateId, setModalTemplateId] = useState(null);
+  const [modalPlanId, setModalPlanId] = useState(null);
   const [mode, setMode] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const refreshTemplates = useCallback(async () => {
+  const refreshPlans = useCallback(async () => {
     try {
-      const data = await getTemplates(scope);
-      setTemplates(Array.isArray(data) ? data : []);
+      const data = await getPlans(scope);
+      setPlans(Array.isArray(data) ? data : []);
     } catch {
-      setError("Could not load templates.");
+      setError("Could not load plans.");
     }
   }, [scope]);
 
@@ -73,10 +74,10 @@ export default function WorkoutTemplatePicker({
       setLoading(true);
       setError("");
       try {
-        const data = await getTemplates(scope);
-        if (!cancelled) setTemplates(Array.isArray(data) ? data : []);
+        const data = await getPlans(scope);
+        if (!cancelled) setPlans(Array.isArray(data) ? data : []);
       } catch {
-        if (!cancelled) setError("Could not load templates.");
+        if (!cancelled) setError("Could not load plans.");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -88,33 +89,31 @@ export default function WorkoutTemplatePicker({
 
   const comboboxItems = useMemo(
     () =>
-      templates.map((t) => ({
-        id: t.id,
-        title: t.title,
-        name: t.name,
-        user: t.user,
+      plans.map((p) => ({
+        id: p.id,
+        title: p.title,
+        name: p.name,
+        user: p.user,
       })),
-    [templates],
+    [plans],
   );
 
   const canManage = (item) =>
     user && item.user != null && item.user === user.id;
 
   const closeModal = () => {
-    setModalTemplateId(null);
+    setModalPlanId(null);
     setMode(null);
   };
 
   const handleSaved = async (saved) => {
-    await refreshTemplates();
+    await refreshPlans();
     if (saved?.id && selected?.id === saved.id) {
       setSelected((prev) =>
         prev
           ? {
               ...prev,
               title: saved.title ?? prev.title,
-              description: saved.description ?? prev.description,
-              duration: saved.duration ?? prev.duration,
             }
           : prev,
       );
@@ -124,22 +123,28 @@ export default function WorkoutTemplatePicker({
 
   return (
     <div className={cn("space-y-2", className)}>
-      <div className="flex flex-row gap-2">
-        {showHeading ? (
-          <h2 className="text-lg font-semibold tracking-tight">Templates</h2>
-        ) : null}
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-2">
+        <div className="min-w-0 flex-1">
+          {showHeading ? (
+            <h2 className="text-lg font-semibold tracking-tight">Plans</h2>
+          ) : null}
+          <p className="text-muted-foreground text-xs leading-snug">
+            Recurring programs that place templates on your calendar. Use
+            generate to materialize workouts.
+          </p>
+        </div>
         <Button
           variant="outline"
           size="sm"
-          className="ml-auto"
-          title="Create a new reusable workout template"
+          className="shrink-0 sm:ml-auto"
+          title="Create a new workout plan (templates on a schedule)"
           onClick={() => {
-            setModalTemplateId(null);
+            setModalPlanId(null);
             setMode("create");
           }}
         >
           <Plus className="size-4" />
-          New Template
+          New plan
         </Button>
       </div>
 
@@ -154,15 +159,15 @@ export default function WorkoutTemplatePicker({
             items={comboboxItems}
             value={selected}
             onValueChange={setSelected}
-            itemToStringLabel={templateLabel}
-            itemToStringValue={(t) => (t ? String(t.id) : "")}
+            itemToStringLabel={planLabel}
+            itemToStringValue={(p) => (p ? String(p.id) : "")}
             isItemEqualToValue={(a, b) => a?.id === b?.id}
             filter={comboboxFilter}
             disabled={loading}
             autoHighlight="always"
           >
             <ComboboxInput
-              placeholder={loading ? "Loading…" : "Search templates…"}
+              placeholder={loading ? "Loading…" : "Search plans…"}
               showClear={!!selected}
               disabled={loading}
               className={cn(
@@ -173,11 +178,11 @@ export default function WorkoutTemplatePicker({
               )}
             />
             <ComboboxContent>
-              <ComboboxEmpty>No templates found.</ComboboxEmpty>
+              <ComboboxEmpty>No plans found.</ComboboxEmpty>
               <ComboboxList>
                 {(item) => (
                   <ComboboxItem key={item.id} value={item}>
-                    {templateLabel(item)}
+                    {planLabel(item)}
                   </ComboboxItem>
                 )}
               </ComboboxList>
@@ -197,12 +202,12 @@ export default function WorkoutTemplatePicker({
             variant="outline"
             size="sm"
             disabled={!selected}
-            aria-label="View template"
-            title={!selected ? "Select a template" : "View template details"}
+            aria-label="View plan"
+            title={!selected ? "Select a plan" : "View plan details"}
             onPointerDown={suppressFocusSteal}
             onClick={() => {
               if (!selected) return;
-              setModalTemplateId(selected.id);
+              setModalPlanId(selected.id);
               setMode("view");
             }}
           >
@@ -212,23 +217,19 @@ export default function WorkoutTemplatePicker({
             type="button"
             variant="outline"
             size="sm"
-            disabled={
-              !selected || !canManage(selected) || exercises.length === 0
-            }
-            aria-label="Edit template"
+            disabled={!selected || !canManage(selected)}
+            aria-label="Edit plan"
             title={
               !selected
-                ? "Select a template"
+                ? "Select a plan"
                 : !canManage(selected)
-                  ? "You can only edit your own templates"
-                  : exercises.length === 0
-                    ? "Load exercises to edit a template"
-                    : "Edit this template"
+                  ? "You can only edit your own plans"
+                  : "Edit this plan"
             }
             onPointerDown={suppressFocusSteal}
             onClick={() => {
               if (!selected) return;
-              setModalTemplateId(selected.id);
+              setModalPlanId(selected.id);
               setMode("edit");
             }}
           >
@@ -240,26 +241,26 @@ export default function WorkoutTemplatePicker({
             size="sm"
             className="text-destructive hover:bg-destructive/10"
             disabled={!selected || !canManage(selected)}
-            aria-label="Delete template"
+            aria-label="Delete plan"
             title={
               !selected
-                ? "Select a template"
+                ? "Select a plan"
                 : !canManage(selected)
-                  ? "You can only delete your own templates"
-                  : "Delete this template"
+                  ? "You can only delete your own plans"
+                  : "Delete this plan"
             }
             onPointerDown={suppressFocusSteal}
             onClick={() => selected && setDeleteTarget(selected)}
           >
             <Trash2 className="size-4" />
           </Button>
-          {onSchedule && (
-            <WorkoutTemplateSchedulerPopover
-              template={selected}
-              disabled={!selected}
-              onSchedule={onSchedule}
-            />
-          )}
+          <WorkoutPlanGenerateDialog
+            plan={selected}
+            disabled={!selected}
+            onPointerDown={suppressFocusSteal}
+            onGenerated={() => onPlanGenerated?.()}
+            onError={(msg) => setError(msg)}
+          />
         </ButtonGroup>
       </div>
 
@@ -270,55 +271,55 @@ export default function WorkoutTemplatePicker({
       )}
 
       <Dialog
-        open={modalTemplateId != null || mode === "create"}
+        open={modalPlanId != null || mode === "create"}
         onOpenChange={(open) => {
           if (!open) closeModal();
         }}
       >
         <DialogContent className="flex max-h-[min(90vh,720px)] w-full flex-col gap-4 overflow-hidden p-6 sm:max-w-3xl">
           <DialogTitle className="shrink-0">
-            {mode == "edit" && modalTemplateId != null
-              ? "Edit Template"
+            {mode == "edit" && modalPlanId != null
+              ? "Edit Plan"
               : mode == "create"
-                ? "Create Template"
-                : "View Template"}
+                ? "Create Plan"
+                : "View Plan"}
           </DialogTitle>
           <DialogDescription
             className="sr-only"
-            id="workout-template-dialog-description"
+            id="workout-plan-dialog-description"
           >
-            {mode == "edit" && modalTemplateId != null
-              ? "Edit this workout template"
+            {mode == "edit" && modalPlanId != null
+              ? "Edit this workout plan"
               : mode == "create"
-                ? "Create a new workout template"
-                : "View this workout template"}
+                ? "Create a new workout plan"
+                : "View this workout plan"}
           </DialogDescription>
 
           <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-            {mode == "edit" && modalTemplateId != null ? (
-              <WorkoutTemplateEdit
-                templateId={modalTemplateId}
-                exercises={exercises}
+            {mode == "edit" && modalPlanId != null ? (
+              <WorkoutPlanEdit
+                planId={modalPlanId}
+                templateScope={templateScope}
                 onClose={closeModal}
                 onSave={handleSaved}
               />
             ) : mode == "create" ? (
-              <WorkoutTemplateCreate
-                exercises={exercises}
+              <WorkoutPlanCreate
+                templateScope={templateScope}
                 onClose={closeModal}
                 onSave={handleSaved}
               />
             ) : (
-              <WorkoutTemplateRead templateId={modalTemplateId} />
+              <WorkoutPlanRead planId={modalPlanId} />
             )}
           </div>
         </DialogContent>
       </Dialog>
-      <WorkoutTemplateDelete
-        template={deleteTarget}
+      <WorkoutPlanDelete
+        plan={deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onDeleted={(id) => {
-          setTemplates((prev) => prev.filter((t) => t.id !== id));
+          setPlans((prev) => prev.filter((p) => p.id !== id));
           if (selected?.id === id) setSelected(null);
         }}
         onError={setError}

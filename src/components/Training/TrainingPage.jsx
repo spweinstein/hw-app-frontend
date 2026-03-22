@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import Calendar from "../Calendar/Calendar.jsx";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import WorkoutTemplatePicker from "./WorkoutTemplate/WorkoutTemplatePicker.jsx";
+import WorkoutPlanPicker from "./WorkoutPlan/WorkoutPlanPicker.jsx";
 import { scheduleWorkoutFromTemplate } from "@/src/services/templateService.js";
 import { getExercises } from "@/src/services/exerciseService.js";
 
@@ -50,11 +57,39 @@ export default function TrainingPage() {
         </p>
       ) : null}
 
-      <WorkoutTemplatePicker
-        scope="user"
-        onSchedule={handleSchedule}
-        exercises={exercises}
-      />
+      <Accordion
+        type="single"
+        collapsible
+        defaultValue="templates"
+        className="rounded-lg border border-border/80 px-3"
+      >
+        <AccordionItem value="templates" className="border-b-0">
+          <AccordionTrigger className="py-3 text-base font-semibold hover:no-underline">
+            Workout templates
+          </AccordionTrigger>
+          <AccordionContent className="pb-4">
+            <WorkoutTemplatePicker
+              scope="user"
+              showHeading={false}
+              onSchedule={handleSchedule}
+              exercises={exercises}
+            />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="plans" className="border-b-0">
+          <AccordionTrigger className="py-3 text-base font-semibold hover:no-underline">
+            Workout plans
+          </AccordionTrigger>
+          <AccordionContent className="pb-4">
+            <WorkoutPlanPicker
+              scope="user"
+              showHeading={false}
+              templateScope="user"
+              onPlanGenerated={handleWorkoutMutated}
+            />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
       <div className="calendar-wrapper">
         <Calendar
           refreshNonce={calendarRefreshNonce}

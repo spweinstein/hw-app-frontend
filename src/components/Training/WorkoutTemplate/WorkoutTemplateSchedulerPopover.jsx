@@ -91,6 +91,7 @@ export default function WorkoutTemplateSchedulerPopover({
           size="sm"
           disabled={disabled}
           aria-label="Schedule template"
+          title="Schedule a one-off workout from this template on the calendar"
           onPointerDown={(e) => e.preventDefault()}
         >
           <CalendarClock className="size-4" />
