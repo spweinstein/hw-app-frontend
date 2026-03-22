@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { getTemplate } from "@/src/services/templateService.js";
-import {
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { DialogFooter } from "@/components/ui/dialog";
+import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 
 function createExerciseBlurb(item) {
   let ret = "";
@@ -47,7 +43,13 @@ export default function WorkoutTemplateRead({ templateId }) {
   }, [templateId]);
 
   if (loading)
-    return <p className="text-muted-foreground text-sm py-2">Loading…</p>;
+    return (
+      <LoadingSpinner
+        message="Loading…"
+        className="py-2"
+        messageClassName="text-sm"
+      />
+    );
   if (error)
     return (
       <p className="text-destructive text-sm py-2" role="alert">

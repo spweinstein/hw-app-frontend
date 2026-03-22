@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router";
 import { UserContext } from "../../contexts/UserContext.jsx";
 import { getPlan } from "../../services/planService.js";
 import PlanBuilder from "./PlanBuilder.jsx";
+import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner.jsx";
 
 const PlanBuilderEdit = () => {
   const { planId } = useParams();
@@ -20,7 +21,7 @@ const PlanBuilderEdit = () => {
       try {
         const planData = await getPlan(planId);
         setPlan(planData);
-      } catch (err) {
+      } catch {
         setError("Could not load this plan for editing.");
       } finally {
         setLoading(false);
@@ -30,7 +31,14 @@ const PlanBuilderEdit = () => {
     loadPlan();
   }, [planId]);
 
-  if (loading) return <h3>Checking edit permissions...</h3>;
+  if (loading)
+    return (
+      <LoadingSpinner
+        message="Checking edit permissions…"
+        variant="centered"
+        orientation="vertical"
+      />
+    );
   if (error) return <p style={{ color: "crimson" }}>{error}</p>;
   if (!plan) return <p>Plan not found.</p>;
 

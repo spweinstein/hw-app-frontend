@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { getExercises } from "../../services/exerciseService";
 import "./ExerciseLibrary.css";
+import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner.jsx";
 
 const ExerciseLibrary = () => {
   const [exercises, setExercises] = useState([]);
@@ -16,7 +17,7 @@ const ExerciseLibrary = () => {
       try {
         const exerciseData = await getExercises();
         setExercises(Array.isArray(exerciseData) ? exerciseData : []);
-      } catch (err) {
+      } catch {
         setError("Could not load exercise library.");
       } finally {
         setLoading(false);
@@ -26,7 +27,14 @@ const ExerciseLibrary = () => {
     loadExercises();
   }, []);
 
-  if (loading) return <h3>Loading exercise library...</h3>;
+  if (loading)
+    return (
+      <LoadingSpinner
+        message="Loading exercise library…"
+        variant="centered"
+        orientation="vertical"
+      />
+    );
   if (error) return <p style={{ color: "crimson" }}>{error}</p>;
 
   return (

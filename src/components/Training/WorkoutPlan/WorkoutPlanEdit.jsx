@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { getPlan, updatePlan } from "@/src/services/planService.js";
 import WorkoutPlanForm from "./WorkoutPlanForm.jsx";
 import { Button } from "@/components/ui/button";
+import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 
 export default function WorkoutPlanEdit({
   planId,
@@ -70,9 +71,14 @@ export default function WorkoutPlanEdit({
 
   if (loading) {
     return (
-      <p className="text-muted-foreground mx-auto max-w-lg px-4 py-8 text-sm">
-        Loading…
-      </p>
+      <div className="mx-auto max-w-lg px-4 py-8">
+        <LoadingSpinner
+          message="Loading…"
+          variant="centered"
+          orientation="vertical"
+          messageClassName="text-sm"
+        />
+      </div>
     );
   }
 

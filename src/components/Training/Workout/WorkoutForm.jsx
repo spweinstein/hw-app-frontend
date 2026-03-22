@@ -7,6 +7,7 @@ import {
   workoutToApiShape,
 } from "./schema.js";
 import { Button } from "@/components/ui/button";
+import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -213,7 +214,16 @@ export default function WorkoutForm({
       <div className="sticky bottom-0 z-10 -mx-2 mt-2 border-t border-border/80 bg-background py-3 backdrop-blur-sm supports-backdrop-filter:bg-background/95">
         <div className="flex flex-wrap gap-2 px-2">
           <Button type="submit" size="sm" disabled={isSubmitting}>
-            {isSubmitting ? "Saving…" : submitLabel}
+            {isSubmitting ? (
+              <LoadingSpinner
+                variant="inline"
+                size="sm"
+                message="Saving…"
+                ariaLive="off"
+              />
+            ) : (
+              submitLabel
+            )}
           </Button>
           {onCancel ? (
             <Button

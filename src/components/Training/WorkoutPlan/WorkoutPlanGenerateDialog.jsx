@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Zap } from "lucide-react";
+import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 
 /**
  * Icon button + confirm: POST plan generate. Parent should refresh calendar on success.
@@ -82,7 +83,16 @@ export default function WorkoutPlanGenerateDialog({
               disabled={pending}
               onClick={() => void handleConfirm()}
             >
-              {pending ? "Generating…" : "Generate"}
+              {pending ? (
+                <LoadingSpinner
+                  variant="inline"
+                  size="sm"
+                  message="Generating…"
+                  ariaLive="off"
+                />
+              ) : (
+                "Generate"
+              )}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

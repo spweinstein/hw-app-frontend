@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from "react-router";
 import { getPlan, deletePlan } from "../../services/planService";
 import { UserContext } from "../../contexts/UserContext.jsx";
 import { generateWorkoutsFromPlan } from "../../services/planService.js";
+import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner.jsx";
 
 const PlanDetail = () => {
   const [plan, setPlan] = useState(null);
@@ -22,7 +23,7 @@ const PlanDetail = () => {
       try {
         const planData = await getPlan(planId);
         setPlan(planData);
-      } catch (err) {
+      } catch {
         setError("Could not load this plan.");
       } finally {
         setLoading(false);
@@ -37,7 +38,7 @@ const PlanDetail = () => {
     setError("");
     try {
       await generateWorkoutsFromPlan(planId);
-    } catch (err) {
+    } catch {
       setError("Could not generate workouts. Please try again.");
     } finally {
       setGenerating(false);
@@ -55,13 +56,20 @@ const PlanDetail = () => {
     try {
       await deletePlan(planId);
       navigate("/plans");
-    } catch (err) {
+    } catch {
       setError("Could not delete this plan. Please try again.");
       setDeleting(false);
     }
   };
 
-  if (loading) return <h3>Loading plan...</h3>;
+  if (loading)
+    return (
+      <LoadingSpinner
+        message="Loading plan…"
+        variant="centered"
+        orientation="vertical"
+      />
+    );
   if (error && !plan) return <p style={{ color: "crimson" }}>{error}</p>;
   if (!plan) return <p>Plan not found.</p>;
 
@@ -137,16 +145,34 @@ const PlanDetail = () => {
 
       <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem" }}>
         <button onClick={handleGenerateWorkouts} disabled={generating}>
-          {generating ? "Generating..." : "Generate Workouts"}
+          {generating ? (
+            <LoadingSpinner
+              variant="inline"
+              size="sm"
+              message="Generating…"
+              ariaLive="off"
+            />
+          ) : (
+            "Generate Workouts"
+          )}
         </button>
         {user?.id === plan.user ? (
           <>
-          <Link to={`/plans/${plan.id}/edit`}>
-            <button>Edit Plan</button>
-          </Link>
-          <button onClick={handleDelete} disabled={deleting}>
-            {deleting ? "Deleting..." : "Delete Plan"}
-          </button>
+            <Link to={`/plans/${plan.id}/edit`}>
+              <button>Edit Plan</button>
+            </Link>
+            <button onClick={handleDelete} disabled={deleting}>
+              {deleting ? (
+                <LoadingSpinner
+                  variant="inline"
+                  size="sm"
+                  message="Deleting…"
+                  ariaLive="off"
+                />
+              ) : (
+                "Delete Plan"
+              )}
+            </button>
           </>
         ) : null}
       </div>

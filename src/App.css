@@ -5,23 +5,6 @@ html {
   box-sizing: inherit;
 }
 
-.fc .fc-header-toolbar {
-  font-size: 10px;
-}
-.fc .fc-toolbar-title {
-  font-size: 14px;
-}
-.fc-button {
-  font-size: 10px;
-}
-.fc-button-primary {
-  font-size: 10px;
-}
-
-.fc {
-  font-size: 10px;
-}
-
 .btn-primary {
   display: inline-flex;
   align-items: center;

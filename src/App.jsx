@@ -13,11 +13,14 @@ import ExerciseLibrary from "./components/ExerciseLibrary/ExerciseLibrary.jsx";
 import Profile from "./components/Calendar/Profile.jsx";
 import Explore from "./components/Explore/Explore.jsx";
 import TrainingPage from "./components/Training/TrainingPage.jsx";
+import LoadingSpinner from "./components/shared/LoadingSpinner/LoadingSpinner.jsx";
 
 const App = () => {
   const { user, loading } = useContext(UserContext);
   if (loading) {
-    return <div>Loading...</div>; // or a proper loading component
+    return (
+      <LoadingSpinner variant="fullscreen" message="Loading…" size="lg" />
+    );
   }
   return (
     <>

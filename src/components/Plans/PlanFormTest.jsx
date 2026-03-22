@@ -5,6 +5,7 @@ import { UserContext } from "../../contexts/UserContext.jsx";
 import { getTemplates } from "../../services/templateService.js";
 import { getPlan, createPlan, updatePlan } from "../../services/planService.js";
 import PlanForm from "../shared/PlanForm/PlanForm.jsx";
+import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner.jsx";
 
 const PlanFormTest = () => {
   const { planId } = useParams();
@@ -51,7 +52,13 @@ const PlanFormTest = () => {
   };
 
   if (loading) {
-    return <h3>Loading templates...</h3>;
+    return (
+      <LoadingSpinner
+        message="Loading templates…"
+        variant="centered"
+        orientation="vertical"
+      />
+    );
   }
 
   return (

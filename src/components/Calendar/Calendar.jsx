@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -20,7 +18,8 @@ import WorkoutCreate from "../Training/Workout/WorkoutCreate.jsx";
 import WorkoutEdit from "../Training/Workout/WorkoutEdit.jsx";
 import WorkoutDelete from "../Training/Workout/WorkoutDelete.jsx";
 import CalendarBulkDelete from "./CalendarBulkDelete.jsx";
-
+import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner.jsx";
+import "./Calendar.css";
 const MOBILE_MQ = "(max-width: 767px)";
 
 function workoutToCalendarEvent(workout) {
@@ -201,9 +200,14 @@ export default function Calendar({
             Workout schedule
           </h2>
           {loading ? (
-            <span className="text-muted-foreground text-sm" aria-live="polite">
-              Loading…
-            </span>
+            <LoadingSpinner
+              variant="inline"
+              size="sm"
+              message="Loading…"
+              ariaLive="polite"
+              ariaBusy={false}
+              className="text-muted-foreground"
+            />
           ) : null}
         </div>
 

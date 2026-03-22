@@ -4,6 +4,7 @@ import { getTemplate, updateTemplate } from "@/src/services/templateService.js";
 import { UserContext } from "@/src/contexts/UserContext.jsx";
 import WorkoutTemplateForm from "./WorkoutTemplateForm.jsx";
 import { Button } from "@/components/ui/button";
+import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 
 export default function WorkoutTemplateEdit({
   templateId,
@@ -73,9 +74,14 @@ export default function WorkoutTemplateEdit({
 
   if (loading) {
     return (
-      <p className="text-muted-foreground mx-auto max-w-lg px-4 py-8 text-sm">
-        Loading…
-      </p>
+      <div className="mx-auto max-w-lg px-4 py-8">
+        <LoadingSpinner
+          message="Loading…"
+          variant="centered"
+          orientation="vertical"
+          messageClassName="text-sm"
+        />
+      </div>
     );
   }
 

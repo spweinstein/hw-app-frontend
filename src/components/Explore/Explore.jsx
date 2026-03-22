@@ -4,6 +4,7 @@ import { getExercises } from "../../services/exerciseService.js";
 import { getTemplates } from "../../services/templateService.js";
 import { getPlans } from "../../services/planService.js";
 import "./Explore.css";
+import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner.jsx";
 
 const Explore = () => {
   const [featuredExercises, setFeaturedExercises] = useState([]);
@@ -40,7 +41,7 @@ const Explore = () => {
             new Date(a.created_at || a.start_dt || 0),
         );
         setFeaturedPlans(sortedPlans.slice(0, 3));
-      } catch (err) {
+      } catch {
         setError("Could not load Explore content. Please try again.");
       } finally {
         setLoading(false);
@@ -51,9 +52,15 @@ const Explore = () => {
 
   if (loading)
     return (
-      <div className="loading-state">
-        <h2>Explore</h2>
-        <p>Loading...</p>
+      <div className="loading-state explore-container">
+        <LoadingSpinner
+          title="Explore"
+          titleAs="h2"
+          message="Loading…"
+          variant="centered"
+          orientation="vertical"
+          className="min-h-[50vh]"
+        />
       </div>
     );
   if (error)

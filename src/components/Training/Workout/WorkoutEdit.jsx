@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getWorkout, updateWorkout } from "@/src/services/workoutService.js";
 import WorkoutForm from "./WorkoutForm.jsx";
 import { Button } from "@/components/ui/button";
+import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 
 export default function WorkoutEdit({
   workoutId,
@@ -68,9 +69,14 @@ export default function WorkoutEdit({
 
   if (loading) {
     return (
-      <p className="text-muted-foreground mx-auto max-w-lg px-4 py-8 text-sm">
-        Loading…
-      </p>
+      <div className="mx-auto max-w-lg px-4 py-8">
+        <LoadingSpinner
+          message="Loading…"
+          variant="centered"
+          orientation="vertical"
+          messageClassName="text-sm"
+        />
+      </div>
     );
   }
 

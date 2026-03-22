@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { createPlan, getPlan, updatePlan } from "../../services/planService.js";
 import { getTemplates } from "../../services/templateService.js";
 import { UserContext } from "../../contexts/UserContext.jsx";
+import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner.jsx";
 
 const toDateTimeLocal = (value) => {
   if (!value) return "";
@@ -90,7 +91,7 @@ const PlanBuilder = () => {
           now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
           setStartDt(now.toISOString().slice(0, 16));
         }
-      } catch (err) {
+      } catch {
         setError("Could not load plan builder data. Please try again.");
       } finally {
         setLoading(false);
@@ -187,7 +188,14 @@ const PlanBuilder = () => {
     }
   };
 
-  if (loading) return <h3>Loading plan builder...</h3>;
+  if (loading)
+    return (
+      <LoadingSpinner
+        message="Loading plan builder…"
+        variant="centered"
+        orientation="vertical"
+      />
+    );
 
   return (
     <div style={{ maxWidth: "900px", margin: "0 auto", padding: "1rem" }}>
@@ -325,13 +333,18 @@ const PlanBuilder = () => {
         ) : null}
 
         <button type="submit" disabled={saving}>
-          {saving
-            ? isEditMode
-              ? "Saving..."
-              : "Creating..."
-            : isEditMode
-              ? "Save Plan"
-              : "Create Plan"}
+          {saving ? (
+            <LoadingSpinner
+              variant="inline"
+              size="sm"
+              message={isEditMode ? "Saving…" : "Creating…"}
+              ariaLive="off"
+            />
+          ) : isEditMode ? (
+            "Save Plan"
+          ) : (
+            "Create Plan"
+          )}
         </button>
       </form>
     </div>

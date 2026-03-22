@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner.jsx";
 import "./CardList.css";
 
 /**
@@ -57,7 +58,7 @@ const CardList = ({
 
   // Get visible actions for an item based on permissions
   const getVisibleActions = (item) => {
-    return Object.entries(actions).filter(([key, config]) => {
+    return Object.entries(actions).filter(([, config]) => {
       // Always visible actions
       if (config.alwaysVisible) return true;
 
@@ -180,8 +181,19 @@ const CardList = ({
               className="card-list__card-action-button"
               onClick={(e) => handleActionClick(actionKey, item, e)}
               disabled={isDisabled}
+              aria-busy={isLoading}
+              aria-label={
+                isLoading ? `${actionConfig.label} (loading)` : undefined
+              }
             >
-              {isLoading ? "..." : (
+              {isLoading ? (
+                <LoadingSpinner
+                  variant="inline"
+                  size="sm"
+                  ariaLive="off"
+                  decorative
+                />
+              ) : (
                 <>
                   {actionConfig.icon && <span>{actionConfig.icon} </span>}
                   {actionConfig.label}
@@ -249,7 +261,7 @@ const CardList = ({
     return (
       <div className="card-list">
         {title && <h2 className="card-list__title">{title}</h2>}
-        <p>Loading...</p>
+        <LoadingSpinner message="Loading…" variant="default" />
       </div>
     );
   }

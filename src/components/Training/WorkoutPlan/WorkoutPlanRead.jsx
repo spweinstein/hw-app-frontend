@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getPlan } from "@/src/services/planService.js";
 import { Badge } from "@/components/ui/badge";
 import { DialogFooter } from "@/components/ui/dialog";
+import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 
 function formatStart(iso) {
   if (!iso) return "—";
@@ -47,7 +48,13 @@ export default function WorkoutPlanRead({ planId }) {
   }, [planId]);
 
   if (loading)
-    return <p className="text-muted-foreground py-2 text-sm">Loading…</p>;
+    return (
+      <LoadingSpinner
+        message="Loading…"
+        className="py-2"
+        messageClassName="text-sm"
+      />
+    );
   if (error)
     return (
       <p className="text-destructive py-2 text-sm" role="alert">

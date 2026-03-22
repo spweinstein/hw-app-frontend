@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ExerciseFormFields, INITIAL_ITEM, InputField, SelectField, TextAreaField } from "../ExerciseFormFields";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner.jsx";
 import { prepareItemData, toDateTimeLocal, toIsoStringOrNull } from "../../../utils/formHelpers.js";
 
 /**
@@ -211,7 +212,11 @@ const WorkoutForm = ({
   if (loading && isEditMode) {
     return (
       <div style={{ padding: "20px", maxWidth: "800px", margin: "0 1rem" }}>
-        <h3>Loading...</h3>
+        <LoadingSpinner
+          message="Loading…"
+          variant="centered"
+          orientation="vertical"
+        />
       </div>
     );
   }
@@ -401,7 +406,18 @@ const WorkoutForm = ({
               }
             }}
           >
-            {loading ? "Saving..." : submitLabel}
+            {loading ? (
+              <LoadingSpinner
+                variant="inline"
+                size="sm"
+                message="Saving…"
+                ariaLive="off"
+                className="text-white [&_span]:text-white"
+                messageClassName="!text-white text-sm"
+              />
+            ) : (
+              submitLabel
+            )}
           </button>
         </div>
       </form>

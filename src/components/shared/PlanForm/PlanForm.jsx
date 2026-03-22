@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import TemplateFormFields, { INITIAL_TEMPLATE_LINK } from "../TemplateFormFields/TemplateFormFields";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner.jsx";
 import InputField from "../TemplateFormFields/InputField";
 import { toDateTimeLocal, toIsoStringOrNull } from "../../../utils/formHelpers.js";
 
@@ -23,7 +24,6 @@ const PlanForm = ({
   onSubmit,
   onCancel,
   templates = [],
-  user,
 }) => {
   const getInitialFormData = () => ({
     title: "",
@@ -191,7 +191,11 @@ const PlanForm = ({
   if (loading && isEditMode) {
     return (
       <div style={{ padding: "20px", maxWidth: "900px", margin: "0 auto" }}>
-        <h3>Loading plan...</h3>
+        <LoadingSpinner
+          message="Loading plan…"
+          variant="centered"
+          orientation="vertical"
+        />
       </div>
     );
   }
@@ -369,13 +373,20 @@ const PlanForm = ({
               }
             }}
           >
-            {loading
-              ? isEditMode
-                ? "Saving..."
-                : "Creating..."
-              : isEditMode
-                ? "Save Plan"
-                : "Create Plan"}
+            {loading ? (
+              <LoadingSpinner
+                variant="inline"
+                size="sm"
+                message={isEditMode ? "Saving…" : "Creating…"}
+                ariaLive="off"
+                className="text-white [&_span]:text-white"
+                messageClassName="!text-white text-sm"
+              />
+            ) : isEditMode ? (
+              "Save Plan"
+            ) : (
+              "Create Plan"
+            )}
           </button>
         </div>
       </form>

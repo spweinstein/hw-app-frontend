@@ -10,6 +10,7 @@ import {
   PopoverTitle,
 } from "@/components/ui/popover";
 import { Eye, Pencil, Trash2 } from "lucide-react";
+import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 
 const STATUS_LABEL = {
   planned: "Planned",
@@ -85,7 +86,11 @@ export default function WorkoutSummaryPopover({
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         {loading ? (
-          <p className="text-muted-foreground text-sm">Loading…</p>
+          <LoadingSpinner
+            message="Loading…"
+            messageClassName="text-sm"
+            size="sm"
+          />
         ) : error ? (
           <p className="text-destructive text-sm" role="alert">
             {error}

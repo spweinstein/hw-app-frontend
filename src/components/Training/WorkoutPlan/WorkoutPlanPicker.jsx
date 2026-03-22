@@ -25,6 +25,7 @@ import WorkoutPlanDelete from "./WorkoutPlanDelete.jsx";
 import WorkoutPlanGenerateDialog from "./WorkoutPlanGenerateDialog.jsx";
 import { Eye, Pencil, Trash2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 
 function suppressFocusSteal(e) {
   e.preventDefault();
@@ -189,6 +190,15 @@ export default function WorkoutPlanPicker({
             </ComboboxContent>
           </Combobox>
         </div>
+
+        {loading ? (
+          <div
+            className="border-border flex min-h-8 items-center border-l px-2"
+            aria-hidden
+          >
+            <LoadingSpinner variant="inline" size="sm" decorative />
+          </div>
+        ) : null}
 
         <ButtonGroup
           className={cn(

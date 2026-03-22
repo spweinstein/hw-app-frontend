@@ -26,6 +26,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import WorkoutTemplateRead from "./WorkoutTemplateRead.jsx";
 import WorkoutTemplateEdit from "./WorkoutTemplateEdit.jsx";
 import { Trash2, Eye, Pencil } from "lucide-react";
+import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 const SCOPES = [
   { value: "user", label: "Mine" },
   { value: "public", label: "Public" },
@@ -38,7 +39,6 @@ export default function WorkoutTemplateList() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [templateId, setTemplateId] = useState(null);
   const [exercises, setExercises] = useState([]);
@@ -148,7 +148,9 @@ export default function WorkoutTemplateList() {
         </p>
       )}
 
-      {loading && <p className="text-muted-foreground text-sm">Loading…</p>}
+      {loading && (
+        <LoadingSpinner message="Loading…" messageClassName="text-sm" />
+      )}
 
       {empty && (
         <Card className="border-dashed">
