@@ -46,7 +46,7 @@ const SignInForm = () => {
     try {
       const signedInUser = await signIn(data);
       setUser(signedInUser);
-      navigate("/explore");
+      navigate("/explore/exercises");
     } catch (err) {
       form.setError("root", { type: "server", message: err.message });
     }

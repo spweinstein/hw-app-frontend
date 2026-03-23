@@ -41,9 +41,7 @@ export default function WorkoutPlanEdit({
     if (!plan) return null;
     return {
       title: plan.title,
-      start_dt: plan.start_dt,
-      interval: plan.interval,
-      cycles: plan.cycles,
+      description: plan.description,
       is_public: plan.is_public,
       template_links: plan.template_links,
     };

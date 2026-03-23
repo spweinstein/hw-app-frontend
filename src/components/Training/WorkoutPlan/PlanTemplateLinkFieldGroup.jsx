@@ -62,6 +62,7 @@ export default function PlanTemplateLinkFieldGroup({
                       <option key={t.id} value={String(t.id)}>
                         {String(t.title ?? t.name ?? "Untitled").trim() ||
                           "Untitled"}
+                        {t.is_rest_placeholder ? " (Rest day)" : ""}
                       </option>
                     ))}
                   </select>

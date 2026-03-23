@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import TemplateFormFields, { INITIAL_TEMPLATE_LINK } from "../TemplateFormFields/TemplateFormFields";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner.jsx";
 import InputField from "../TemplateFormFields/InputField";
-import { toDateTimeLocal, toIsoStringOrNull } from "../../../utils/formHelpers.js";
-
 /**
  * PlanForm component for creating and editing workout plans
  * Based on WorkoutForm but manages templates instead of exercises
@@ -27,9 +25,7 @@ const PlanForm = ({
 }) => {
   const getInitialFormData = () => ({
     title: "",
-    start_dt: "",
-    interval: 1,
-    cycles: 1,
+    description: "",
     is_public: false,
     template_links: [{ ...INITIAL_TEMPLATE_LINK, order: 0 }],
   });
@@ -54,9 +50,7 @@ const PlanForm = ({
 
         setFormData({
           title: plan.title || "",
-          start_dt: toDateTimeLocal(plan.start_dt),
-          interval: plan.interval || 1,
-          cycles: plan.cycles || 1,
+          description: plan.description || "",
           is_public: Boolean(plan.is_public),
           template_links: sortedLinks.length > 0 
             ? sortedLinks.map((link) => ({
@@ -80,20 +74,7 @@ const PlanForm = ({
     loadData();
   }, [planId, isEditMode, loadPlan]);
 
-  // Initialize start_dt for new plans
-  useEffect(() => {
-    if (!isEditMode && !formData.start_dt) {
-      const now = new Date();
-      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-      setFormData(prev => ({
-        ...prev,
-        start_dt: now.toISOString().slice(0, 16),
-      }));
-    }
-  }, [isEditMode, formData.start_dt]);
-
   const handleItemChange = (index, field, value) => {
-    console.log("handleItemChange called:", { index, field, value, currentItem: formData.template_links[index] });
     setFormData((prev) => {
       const updated = {
         ...prev,
@@ -101,32 +82,22 @@ const PlanForm = ({
           i === index ? { ...item, [field]: value } : item
         ),
       };
-      console.log("Updated formData:", updated.template_links);
       return updated;
     });
   };
 
   const handleAddItem = () => {
-    setFormData((prev) => {
-      const defaultTime = prev.start_dt && prev.start_dt.includes("T")
-        ? (() => {
-            const [, timePart] = prev.start_dt.split("T");
-            if (timePart) {
-              const [hours = "18", minutes = "00"] = timePart.split(":");
-              return `${hours}:${minutes}:00`;
-            }
-            return "18:00:00";
-          })()
-        : "18:00:00";
-
-      return {
-        ...prev,
-        template_links: [
-          ...prev.template_links,
-          { ...INITIAL_TEMPLATE_LINK, time: defaultTime, order: prev.template_links.length },
-        ],
-      };
-    });
+    setFormData((prev) => ({
+      ...prev,
+      template_links: [
+        ...prev.template_links,
+        {
+          ...INITIAL_TEMPLATE_LINK,
+          time: "18:00:00",
+          order: prev.template_links.length,
+        },
+      ],
+    }));
   };
 
   const handleRemoveItem = (index) => {
@@ -169,8 +140,9 @@ const PlanForm = ({
             }));
     
         const baseData = {
-            ...formData,
-            start_dt: toIsoStringOrNull(formData.start_dt),
+            title: formData.title,
+            description: formData.description || "",
+            is_public: formData.is_public,
             template_links,
         };
     
@@ -252,37 +224,32 @@ const PlanForm = ({
               required
             />
 
-            <InputField
-              label="Start Date & Time"
-              name="start_dt"
-              type="datetime-local"
-              value={formData.start_dt}
-              onChange={(e) => handleFormChange("start_dt", e.target.value)}
-              required
-            />
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-              <InputField
-                label="Interval (days between workouts)"
-                name="interval"
-                type="number"
-                value={formData.interval}
-                onChange={(e) => handleFormChange("interval", e.target.value)}
-                required
-                min="1"
-                step="1"
+            <label
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.35rem",
+              }}
+            >
+              <span style={{ fontSize: "14px", fontWeight: "600", color: "#333" }}>
+                Description
+              </span>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={(e) => handleFormChange("description", e.target.value)}
+                rows={3}
+                placeholder="Optional"
+                style={{
+                  width: "100%",
+                  padding: "0.5rem 0.65rem",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                  fontSize: "14px",
+                  fontFamily: "inherit",
+                }}
               />
-              <InputField
-                label="Cycles (number of times to repeat)"
-                name="cycles"
-                type="number"
-                value={formData.cycles}
-                onChange={(e) => handleFormChange("cycles", e.target.value)}
-                required
-                min="1"
-                step="1"
-              />
-            </div>
+            </label>
 
             <label
               style={{

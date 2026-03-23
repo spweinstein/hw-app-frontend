@@ -4,7 +4,7 @@ import { getExercises } from "../../services/exerciseService";
 import "./ExerciseLibrary.css";
 import LoadingSpinner from "../shared/LoadingSpinner/LoadingSpinner.jsx";
 
-const ExerciseLibrary = () => {
+const ExerciseLibrary = ({ embedded = false }) => {
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -40,12 +40,17 @@ const ExerciseLibrary = () => {
   return (
     <div className="exercise-lib">
       <div>
-        <h2>Exercise Library</h2>
-        {exercises.length > 0 && (
+        {!embedded ? <h2>Exercise Library</h2> : null}
+        {!embedded && exercises.length > 0 ? (
           <p className="exercise-lib-subtitle">
             Browse movements to plug into your plans and workouts.
           </p>
-        )}
+        ) : null}
+        {embedded && exercises.length > 0 ? (
+          <p className="text-muted-foreground mb-3 text-sm">
+            Admin-curated movements to plug into your plans and workouts.
+          </p>
+        ) : null}
 
         {exercises.length > 0 && (
           <p className="exercise-lib-count">

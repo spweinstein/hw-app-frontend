@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { toDateTimeLocal, toIsoStringOrNull } from "../../../utils/formHelpers.js";
 
 export const planTemplateLinkRowSchema = z.object({
   id: z.any().optional(),
@@ -10,9 +9,7 @@ export const planTemplateLinkRowSchema = z.object({
 
 export const workoutPlanSchema = z.object({
   title: z.string().trim().min(1, "Title is required"),
-  start_dt: z.string().trim().min(1, "Start is required"),
-  interval: z.coerce.number().int().min(1, "Interval must be at least 1"),
-  cycles: z.coerce.number().int().min(1, "Cycles must be at least 1"),
+  description: z.string().optional(),
   is_public: z.boolean(),
   template_links: z.array(planTemplateLinkRowSchema),
 });
@@ -61,31 +58,23 @@ function mapApiLinksToForm(links) {
 }
 
 export function planDefaultsFromProps(defaultValues) {
-  const now = new Date();
   if (!defaultValues) {
     return {
       title: "",
-      start_dt: toDateTimeLocal(now),
-      interval: 1,
-      cycles: 1,
+      description: "",
       is_public: false,
       template_links: [{ template: "", time: "09:00", order: 0 }],
     };
   }
   return {
     title: defaultValues.title ?? "",
-    start_dt: defaultValues.start_dt
-      ? toDateTimeLocal(defaultValues.start_dt)
-      : toDateTimeLocal(now),
-    interval: defaultValues.interval ?? 1,
-    cycles: defaultValues.cycles ?? 1,
+    description: defaultValues.description ?? "",
     is_public: Boolean(defaultValues.is_public),
     template_links: mapApiLinksToForm(defaultValues.template_links),
   };
 }
 
 export function planToApiShape(data) {
-  const start = toIsoStringOrNull(data.start_dt);
   const links = (data.template_links ?? [])
     .filter(
       (row) =>
@@ -101,9 +90,7 @@ export function planToApiShape(data) {
 
   return {
     title: data.title.trim(),
-    start_dt: start,
-    interval: Number(data.interval) || 1,
-    cycles: Number(data.cycles) || 1,
+    description: data.description?.trim() ?? "",
     is_public: Boolean(data.is_public),
     template_links: links,
   };

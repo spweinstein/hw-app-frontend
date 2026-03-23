@@ -26,6 +26,7 @@ import WorkoutTemplateSchedulerPopover from "./WorkoutTemplateSchedulerPopover.j
 import { Eye, Pencil, Trash2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
+import { apiErrorMessage } from "@/src/utils/apiErrorMessage.js";
 
 function suppressFocusSteal(e) {
   e.preventDefault();
@@ -63,8 +64,8 @@ export default function WorkoutTemplatePicker({
     try {
       const data = await getTemplates(scope);
       setTemplates(Array.isArray(data) ? data : []);
-    } catch {
-      setError("Could not load templates.");
+    } catch (err) {
+      setError(apiErrorMessage(err, "Could not load templates."));
     }
   }, [scope]);
 
@@ -76,8 +77,10 @@ export default function WorkoutTemplatePicker({
       try {
         const data = await getTemplates(scope);
         if (!cancelled) setTemplates(Array.isArray(data) ? data : []);
-      } catch {
-        if (!cancelled) setError("Could not load templates.");
+      } catch (err) {
+        if (!cancelled) {
+          setError(apiErrorMessage(err, "Could not load templates."));
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -89,12 +92,14 @@ export default function WorkoutTemplatePicker({
 
   const comboboxItems = useMemo(
     () =>
-      templates.map((t) => ({
-        id: t.id,
-        title: t.title,
-        name: t.name,
-        user: t.user,
-      })),
+      templates
+        .filter((t) => !t.is_rest_placeholder)
+        .map((t) => ({
+          id: t.id,
+          title: t.title,
+          name: t.name,
+          user: t.user,
+        })),
     [templates],
   );
 

@@ -11,6 +11,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarClock } from "lucide-react";
+import { apiErrorMessage } from "@/src/utils/apiErrorMessage.js";
 
 function toDateInputValue(d) {
   const z = (n) => String(n).padStart(2, "0");
@@ -47,18 +48,6 @@ export default function WorkoutTemplateSchedulerPopover({
     }
   };
 
-  function scheduleErrorMessage(error) {
-    const d = error?.response?.data;
-    if (typeof d?.detail === "string" && d.detail) return d.detail;
-    if (Array.isArray(d?.errors) && d.errors.length) return d.errors.join(" ");
-    if (d && typeof d === "object") {
-      const first = Object.values(d).flat()[0];
-      if (typeof first === "string") return first;
-      if (Array.isArray(first) && first[0]) return String(first[0]);
-    }
-    return error?.message || "Could not schedule workout.";
-  }
-
   const confirm = async () => {
     const SCHEDULE_FAILED = "Could not schedule workout.";
     if (!template) return;
@@ -70,13 +59,13 @@ export default function WorkoutTemplateSchedulerPopover({
     }
     setIsScheduling(true);
     try {
-      const result = await onSchedule(template, { startISO });
+      await onSchedule(template, { startISO });
 
       setDate(toDateInputValue(new Date()));
       setTime("09:00");
       setOpen(false);
-    } catch {
-      setError(SCHEDULE_FAILED);
+    } catch (err) {
+      setError(apiErrorMessage(err, SCHEDULE_FAILED));
     } finally {
       setIsScheduling(false);
     }
@@ -137,11 +126,17 @@ export default function WorkoutTemplateSchedulerPopover({
             variant="outline"
             size="sm"
             onClick={() => setOpen(false)}
+            disabled={isScheduling}
           >
             Cancel
           </Button>
-          <Button type="button" size="sm" onClick={confirm}>
-            Schedule
+          <Button
+            type="button"
+            size="sm"
+            onClick={confirm}
+            disabled={isScheduling}
+          >
+            {isScheduling ? "Scheduling…" : "Schedule"}
           </Button>
         </div>
       </PopoverContent>

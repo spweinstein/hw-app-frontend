@@ -4,16 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { DialogFooter } from "@/components/ui/dialog";
 import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 
-function formatStart(iso) {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
-
 function formatTime(value) {
   if (value == null || value === "") return "—";
   const s = String(value);
@@ -74,17 +64,12 @@ export default function WorkoutPlanRead({ planId }) {
     <>
       <div>
         <h1 className="text-2xl font-bold">{plan.title}</h1>
-        <p className="text-sm text-muted-foreground">
-          Starts {formatStart(plan.start_dt)}
-        </p>
+        {plan.description?.trim() ? (
+          <p className="text-muted-foreground mt-1 text-sm whitespace-pre-wrap">
+            {plan.description.trim()}
+          </p>
+        ) : null}
         <div className="mt-2 flex flex-wrap items-center gap-2">
-          <Badge variant="outline">
-            Every {plan.interval ?? 1} day
-            {(plan.interval ?? 1) === 1 ? "" : "s"}
-          </Badge>
-          <Badge variant="secondary">
-            {plan.cycles ?? 1} cycle{(plan.cycles ?? 1) === 1 ? "" : "s"}
-          </Badge>
           {plan.is_public ? (
             <Badge variant="default">Public</Badge>
           ) : (
@@ -92,7 +77,7 @@ export default function WorkoutPlanRead({ planId }) {
           )}
         </div>
         <p className="mt-2 text-sm text-muted-foreground">
-          {links.length} template link{links.length === 1 ? "" : "s"}
+          {links.length} step{links.length === 1 ? "" : "s"} in rotation
         </p>
       </div>
 
@@ -103,26 +88,34 @@ export default function WorkoutPlanRead({ planId }) {
           </p>
         ) : (
           <ol className="m-0 list-none space-y-2 p-0">
-            {links.map((link, index) => (
-              <li
-                key={link.id ?? index}
-                className="rounded-lg border border-border/80 bg-muted/20 px-3 py-2"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-muted-foreground text-xs font-medium tabular-nums">
-                    #{index + 1}
-                  </span>
-                  <span className="font-medium">
-                    {link.template_detail?.title ??
-                      link.template_detail?.name ??
-                      `Template ${link.template ?? "?"}`}
-                  </span>
-                  <Badge variant="outline" className="tabular-nums">
-                    {formatTime(link.time)}
-                  </Badge>
-                </div>
-              </li>
-            ))}
+            {links.map((link, index) => {
+              const isRest =
+                link.template_detail?.is_rest_placeholder === true;
+              return (
+                <li
+                  key={link.id ?? index}
+                  className="rounded-lg border border-border/80 bg-muted/20 px-3 py-2"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-muted-foreground text-xs font-medium tabular-nums">
+                      #{index + 1}
+                    </span>
+                    <span className="font-medium">
+                      {link.template_detail?.title ??
+                        link.template_detail?.name ??
+                        `Template ${link.template ?? "?"}`}
+                    </span>
+                    {isRest ? (
+                      <Badge variant="secondary">Rest day</Badge>
+                    ) : (
+                      <Badge variant="outline" className="tabular-nums">
+                        {formatTime(link.time)}
+                      </Badge>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ol>
         )}
       </div>

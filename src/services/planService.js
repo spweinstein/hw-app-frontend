@@ -27,8 +27,12 @@ export const deletePlan = async (planId) => {
   return resp.data;
 };
 
-/** POST /api/workout-plans/:id/generate/ — materializes plan onto calendar */
-export const generateWorkoutsFromPlan = async (planId) => {
-  const resp = await api.post(`api/workout-plans/${planId}/generate/`);
+/**
+ * POST /api/workout-plans/:id/generate/ — materializes plan onto calendar.
+ * @param {string|number} planId
+ * @param {{ start_dt: string, end_dt: string }} body — ISO start_dt, end_dt inclusive date (YYYY-MM-DD or ISO)
+ */
+export const generateWorkoutsFromPlan = async (planId, body) => {
+  const resp = await api.post(`api/workout-plans/${planId}/generate/`, body);
   return resp.data;
 };

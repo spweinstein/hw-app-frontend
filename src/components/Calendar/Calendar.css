@@ -26,4 +26,7 @@
 .fc-dayGridMonth-view .fc-daygrid-day-frame {
   min-height: unset; /* or min-height: 0; if unset isn’t enough */
   aspect-ratio: 1 / 1;
+  @media (max-width: 768px) {
+    max-width: 50vw;
+  }
 }

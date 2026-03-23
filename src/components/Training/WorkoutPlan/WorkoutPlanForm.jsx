@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import PlanTemplateLinkFieldGroup from "./PlanTemplateLinkFieldGroup.jsx";
 
 export default function WorkoutPlanForm({
@@ -85,9 +86,7 @@ export default function WorkoutPlanForm({
     reset(planDefaultsFromProps(defaultValues));
   }, [
     defaultValues?.title,
-    defaultValues?.start_dt,
-    defaultValues?.interval,
-    defaultValues?.cycles,
+    defaultValues?.description,
     defaultValues?.is_public,
     defaultValues?.template_links,
     reset,
@@ -101,7 +100,8 @@ export default function WorkoutPlanForm({
       <div>
         <h1 className="text-xl font-semibold tracking-tight">{heading}</h1>
         <p className="text-muted-foreground mt-0.5 text-xs leading-snug">
-          Schedule, recurrence, and which templates run on which days.
+          Ordered templates (and rest days) with a time of day for each. Use
+          Generate to place them on your calendar for a date range.
         </p>
       </div>
 
@@ -143,63 +143,19 @@ export default function WorkoutPlanForm({
 
       <div className="space-y-1.5">
         <Label
-          htmlFor="workout-plan-start"
+          htmlFor="workout-plan-description"
           className="text-muted-foreground text-xs"
         >
-          Plan start
+          Description
         </Label>
-        <Input
-          id="workout-plan-start"
-          type="datetime-local"
+        <Textarea
+          id="workout-plan-description"
           disabled={isSubmitting}
-          className="h-8"
-          aria-invalid={Boolean(errors.start_dt)}
-          {...register("start_dt")}
+          rows={3}
+          className="min-h-[4rem] resize-y text-sm"
+          placeholder="Optional"
+          {...register("description")}
         />
-        {errors.start_dt?.message ? (
-          <p className="text-destructive text-xs">{errors.start_dt.message}</p>
-        ) : null}
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label
-            htmlFor="workout-plan-interval"
-            className="text-muted-foreground text-xs"
-          >
-            Interval (days between cycle starts)
-          </Label>
-          <Input
-            id="workout-plan-interval"
-            type="number"
-            min={1}
-            disabled={isSubmitting}
-            className="h-8"
-            {...register("interval")}
-          />
-          {errors.interval?.message ? (
-            <p className="text-destructive text-xs">{errors.interval.message}</p>
-          ) : null}
-        </div>
-        <div className="space-y-1.5">
-          <Label
-            htmlFor="workout-plan-cycles"
-            className="text-muted-foreground text-xs"
-          >
-            Cycles
-          </Label>
-          <Input
-            id="workout-plan-cycles"
-            type="number"
-            min={1}
-            disabled={isSubmitting}
-            className="h-8"
-            {...register("cycles")}
-          />
-          {errors.cycles?.message ? (
-            <p className="text-destructive text-xs">{errors.cycles.message}</p>
-          ) : null}
-        </div>
       </div>
 
       <div className="flex items-center gap-2">

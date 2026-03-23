@@ -26,6 +26,7 @@ import WorkoutPlanGenerateDialog from "./WorkoutPlanGenerateDialog.jsx";
 import { Eye, Pencil, Trash2, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import LoadingSpinner from "@/src/components/shared/LoadingSpinner/LoadingSpinner.jsx";
+import { apiErrorMessage } from "@/src/utils/apiErrorMessage.js";
 
 function suppressFocusSteal(e) {
   e.preventDefault();
@@ -64,8 +65,8 @@ export default function WorkoutPlanPicker({
     try {
       const data = await getPlans(scope);
       setPlans(Array.isArray(data) ? data : []);
-    } catch {
-      setError("Could not load plans.");
+    } catch (err) {
+      setError(apiErrorMessage(err, "Could not load plans."));
     }
   }, [scope]);
 
@@ -77,8 +78,8 @@ export default function WorkoutPlanPicker({
       try {
         const data = await getPlans(scope);
         if (!cancelled) setPlans(Array.isArray(data) ? data : []);
-      } catch {
-        if (!cancelled) setError("Could not load plans.");
+      } catch (err) {
+        if (!cancelled) setError(apiErrorMessage(err, "Could not load plans."));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -130,8 +131,8 @@ export default function WorkoutPlanPicker({
             <h2 className="text-lg font-semibold tracking-tight">Plans</h2>
           ) : null}
           <p className="text-muted-foreground text-xs leading-snug">
-            Recurring programs that place templates on your calendar. Use
-            generate to materialize workouts.
+            Ordered workout steps (and rest days). Use generate to add them to
+            your calendar for a date range.
           </p>
         </div>
         <Button
@@ -269,7 +270,6 @@ export default function WorkoutPlanPicker({
             disabled={!selected}
             onPointerDown={suppressFocusSteal}
             onGenerated={() => onPlanGenerated?.()}
-            onError={(msg) => setError(msg)}
           />
         </ButtonGroup>
       </div>

@@ -61,7 +61,7 @@ const SignUpForm = () => {
     try {
       const newUser = await signUp(data);
       setUser(newUser);
-      navigate("/explore");
+      navigate("/explore/exercises");
     } catch (err) {
       form.setError("root", { type: "server", message: err.message });
     }
