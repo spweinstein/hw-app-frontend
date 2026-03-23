@@ -81,10 +81,12 @@ export default function WorkoutPlanGenerateDialog({
       const result = await generateWorkoutsFromPlan(plan.id, {
         start_dt,
         end_dt: endKey,
+        tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
       onGenerated?.(result);
       setOpen(false);
     } catch (err) {
+      console.log(err);
       setFormError(apiErrorMessage(err, GENERATE_FAILED));
     } finally {
       setPending(false);
