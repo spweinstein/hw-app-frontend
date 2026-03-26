@@ -25,6 +25,19 @@ import { UserContext } from "../../contexts/UserContext.jsx";
 
 const MOBILE_DRAWER_ID = "mobile-main-nav-drawer";
 
+function HealthIsWealthWordmark({ className }) {
+  return (
+    <span className={className}>
+      <span className="font-['Outfit',sans-serif] font-extrabold tracking-[-0.04em] text-foreground">
+        Health is{" "}
+      </span>
+      <span className="font-['Outfit',sans-serif] font-extrabold tracking-[-0.04em] text-[#006d77]">
+        Wealth.
+      </span>
+    </span>
+  );
+}
+
 function mobileNavRowClass({ isActive }) {
   return cn(
     "flex min-h-10 w-full items-center rounded-md px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted",
@@ -36,7 +49,7 @@ function MobileNavItems({ user, onNavigate, onSignOut }) {
   return (
     <nav className="flex flex-col gap-1 px-2 pb-4" aria-label="Main">
       <NavLink to="/" className={mobileNavRowClass} onClick={onNavigate} end>
-        Home
+        <HealthIsWealthWordmark />
       </NavLink>
       {user ? (
         <>
@@ -144,7 +157,7 @@ export default function NavBar() {
             to="/"
             className="font-heading text-lg font-bold tracking-tight text-foreground no-underline"
           >
-            Home
+            <HealthIsWealthWordmark />
           </NavLink>
           <Drawer
             direction="top"
@@ -207,7 +220,7 @@ export default function NavBar() {
                   className={navigationMenuTriggerStyle()}
                 >
                   <NavLink to="/" className={navigationMenuTriggerStyle()} end>
-                    Home
+                    <HealthIsWealthWordmark />
                   </NavLink>
                 </NavigationMenuLink>
               </NavigationMenuItem>
