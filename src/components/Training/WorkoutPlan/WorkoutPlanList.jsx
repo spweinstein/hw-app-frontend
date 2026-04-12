@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Eye, Search } from "lucide-react";
 import { getPlans } from "@/src/services/planService.js";
 import { Button } from "@/components/ui/button";
@@ -27,8 +27,8 @@ import WorkoutPlanRead from "./WorkoutPlanRead.jsx";
 import WorkoutPlanGenerateDialog from "./WorkoutPlanGenerateDialog.jsx";
 import {
   EXPLORE_LIST_PAGE_SIZE,
-  matchesSearch,
-  paginateSlice,
+  getTotalPagesFromCount,
+  normalizeCatalogResponse,
 } from "@/src/components/Training/Explore/exploreListUtils.js";
 import { apiErrorMessage } from "@/src/utils/apiErrorMessage.js";
 
@@ -49,12 +49,12 @@ function suppressFocusSteal(e) {
 
 export default function WorkoutPlanList({ page, onPageChange }) {
   const [items, setItems] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [viewPlanId, setViewPlanId] = useState(null);
   const [actionBanner, setActionBanner] = useState(null);
-  const prevSearchRef = useRef(search);
 
   const handleGenerated = useCallback(() => {
     setActionBanner({
@@ -63,15 +63,33 @@ export default function WorkoutPlanList({ page, onPageChange }) {
     });
   }, []);
 
+  const handleSearchChange = useCallback(
+    (event) => {
+      setSearch(event.target.value);
+      onPageChange(1);
+      setActionBanner(null);
+    },
+    [onPageChange],
+  );
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       setError("");
       try {
-        const data = await getPlans("public");
+        const data = await getPlans({
+          scope: "public",
+          page,
+          pageSize: EXPLORE_LIST_PAGE_SIZE,
+          search,
+        });
         if (!cancelled) {
-          setItems(Array.isArray(data) ? data : []);
+          const { results, count } = normalizeCatalogResponse(data);
+          setItems(results);
+          setTotalPages(
+            getTotalPagesFromCount(count, EXPLORE_LIST_PAGE_SIZE),
+          );
         }
       } catch (err) {
         if (!cancelled) {
@@ -84,37 +102,15 @@ export default function WorkoutPlanList({ page, onPageChange }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [page, search]);
 
-  const filtered = useMemo(() => {
-    return items.filter((p) =>
-      matchesSearch(search, [
-        p.title,
-        p.description,
-        formatPlanOwner(p),
-        p.user != null ? String(p.user) : null,
-      ]),
-    );
-  }, [items, search]);
-
-  const { slice, totalPages, safePage } = useMemo(
-    () => paginateSlice(filtered, page, EXPLORE_LIST_PAGE_SIZE),
-    [filtered, page],
-  );
+  const safePage = Math.min(Math.max(1, page), totalPages);
 
   useEffect(() => {
     if (page !== safePage) {
       onPageChange(safePage);
     }
   }, [page, safePage, onPageChange]);
-
-  useEffect(() => {
-    if (prevSearchRef.current !== search) {
-      prevSearchRef.current = search;
-      onPageChange(1);
-      setActionBanner(null);
-    }
-  }, [search, onPageChange]);
 
   if (loading) {
     return (
@@ -162,7 +158,7 @@ export default function WorkoutPlanList({ page, onPageChange }) {
             type="search"
             placeholder="Search plans by title, description, or author…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
             aria-label="Search plans"
           />
         </InputGroup>
@@ -177,7 +173,7 @@ export default function WorkoutPlanList({ page, onPageChange }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {slice.length === 0 ? (
+            {items.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={5}
@@ -187,7 +183,7 @@ export default function WorkoutPlanList({ page, onPageChange }) {
                 </TableCell>
               </TableRow>
             ) : (
-              slice.map((p) => {
+              items.map((p) => {
                 const canGenerate = (p.template_links?.length ?? 0) > 0;
                 return (
                   <TableRow key={p.id}>

@@ -3,29 +3,20 @@ import { verifyUser } from "../services/authService";
 
 const UserContext = createContext();
 
-const getUserFromToken = () => {
-  const token = localStorage.getItem("token");
-  console.log(token);
-
-  if (!token) return null;
-  console.log(JSON.parse(atob(token.split(".")[1])).payload);
-  return JSON.parse(atob(token.split(".")[1])).payload;
-};
-
 const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
-      setLoading(true); // Start loading
+      setLoading(true);
       try {
         const user = await verifyUser();
         setUser(user);
-      } catch (error) {
+      } catch {
         setUser(null);
       } finally {
-        setLoading(false); // Finish loading
+        setLoading(false);
       }
     };
     fetchUser();

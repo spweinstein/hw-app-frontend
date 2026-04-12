@@ -1,191 +1,89 @@
-# HW App – Frontend
+# HW App Frontend
 
-## About
+React/Vite client for the fitness app. It connects to the Django API with JWT-based authentication and powers the public landing pages, sign-in/sign-up flow, profile screen, exercise library, workout templates and plans, and the calendar-based workout view.
 
-The **Health is Wealth  (HW) App Frontend** is a React application that allows users to track fitness progress, browse exercises, and interact with workout plans.
+## Setup
 
-It connects to a **Django REST API backend** and uses **JWT authentication** to manage secure user sessions.
-
----
-## Live Deployment
-
-- **Frontend (Netlify):** https://healthwealthapp.netlify.app/
-- **Backend API (Railway):** https://hw-app-backend-production.up.railway.app/
-
----
-## Tech Stack
-
-- React
-- Vite
-- React Router
-- Axios
-- JWT Authentication
-- Netlify (deployment)
-
----
-
-## Features
-## Features
-
-- JWT authentication
-- Profile management (height tracking and weight logs)
-- Exercise library with instructions and demo videos (admin seeded)
-- Workout templates and plans (admin seeded)
-- Calendar-based workout logging
-- User authentication (sign up / sign in)
-- Dashboard with nested routing
-
----
 ```bash
-src
-│
-├── components
-│   │
-│   ├── Calendar
-        ├── Calendar.jsx
-        ├── Profile.css
-│   │   └── Profile.jsx
-│   │
-│   ├── ExerciseLibrary
-│   │   ├── ExerciseLibrary.jsx
-│   │   └── ExerciseDetail.jsx
-│   │
-│   ├── Dashboard
-│   │   └── Dashboard.jsx
-│   │
-│   └── Landing
-│       └── Landing.jsx
-│
-├── contexts
-│   └── UserContext.jsx
-│
-├── services
-│   ├── apiConfig.js
-│   ├── authService.js
-│   ├── profileServices.js
-│   └── exerciseService.js
-│
-└── App.jsx
+npm install
+npm run dev
+```
+
+## Scripts
+
+- `npm run dev` - start the Vite dev server
+- `npm run build` - create a production build
+- `npm run lint` - run ESLint
+
+## Environment
+
+Set `VITE_BACK_END_SERVER_URL` to the backend API base URL before running the app.
+
+## Source structure
 
 ```
-## Calendar Workout Log
+src/
+├── app/                        # App shell: router entry, providers, global layout
+│   ├── UserContext.jsx         # Auth context + UserProvider
+│   ├── NavBar.jsx              # Top navigation bar
+│   └── NavBar.css
+│
+├── features/
+│   ├── auth/                   # Sign-in, sign-up, and landing page
+│   │   ├── SignInForm.jsx
+│   │   ├── SignUpForm.jsx
+│   │   ├── Landing.jsx
+│   │   └── Landing.css / SignUpForm.css
+│   │
+│   ├── exercises/              # Exercise library and detail view
+│   │   ├── ExerciseLibrary.jsx
+│   │   ├── ExerciseDetail.jsx
+│   │   └── *.css
+│   │
+│   ├── profile/                # User profile (height, weight log)
+│   │   ├── Profile.jsx
+│   │   └── Profile.css
+│   │
+│   └── training/               # All training-domain UI
+│       ├── TrainingPage.jsx    # /training and /workouts route (calendar + pickers)
+│       ├── calendar/           # FullCalendar integration + bulk delete
+│       ├── explore/            # /explore/:tab page, pagination, list utils
+│       ├── workout/            # Workout CRUD (RHF + zod form, read, delete, popover)
+│       ├── workout-template/   # Template CRUD (picker, manage list, scheduler)
+│       ├── workout-plan/       # Plan CRUD (picker, generate dialog, read)
+│       ├── exercise-field-group/ # New RHF-based exercise row field group (used by workout & template forms)
+│       └── forms/              # Legacy form system (kept for backward compat)
+│           ├── WorkoutForm.jsx       # Legacy unified workout/template form
+│           ├── PlanForm.jsx          # Legacy plan form
+│           ├── exercise-form-fields/ # Legacy exercise row components + InputField/SelectField/TextAreaField
+│           └── template-form-fields/ # Legacy template link row components
+│
+├── shared/
+│   ├── layout/
+│   │   └── AppLayout.jsx       # Page shell wrapper (Outlet)
+│   ├── feedback/
+│   │   └── LoadingSpinner.jsx  # Spinner with variants (fullscreen, centered, inline)
+│   └── ui/
+│       ├── CardList.jsx        # Generic card list with actions, scope switcher, empty state
+│       └── CardList.css
+│
+├── services/                   # API service modules (authService, workoutService, …)
+├── utils/                      # Shared helpers (formHelpers, apiErrorMessage, …)
+├── App.jsx                     # Route tree
+├── main.jsx                    # React root + BrowserRouter + UserProvider
+└── index.css / App.css
+```
 
-The app includes a **calendar-based workout log** that allows users to view and track workouts scheduled on specific dates.
+### Path alias
 
-Workout plans generate **dated workouts** that appear in the user's calendar. Each workout contains exercises derived from predefined workout templates.
+All imports use the `@/` alias which resolves to the repo root (`fitness-frontend/`). Imports into `src/` use `@/src/…`. Shadcn/ui components are at `@/components/ui/…`.
 
-### What Users Can Do
+### Legacy forms
 
-- View workouts scheduled for specific calendar days
-- Open a workout to see exercises and instructions
-- Log completion of workouts
-- Track workout history over time
+`src/features/training/forms/` contains the older inline-style form system (pre-RHF). It is still used by some flows and kept to avoid churn. The newer pattern uses React Hook Form + Zod and lives in `workout/`, `workout-template/`, and `workout-plan/` (e.g. `WorkoutForm.jsx`, `WorkoutTemplateForm.jsx`, `WorkoutPlanForm.jsx`).
 
-### How It Works
+## Notes
 
-The workout system separates **planning** from **execution**:
-
-- **Workout Templates**  
-  Define the structure of a workout (exercises, order, and configuration).
-
-- **Workout Plans**  
-  Schedule workouts across a time period using templates.
-
-- **Calendar Workouts**  
-  Represent actual workouts assigned to specific calendar dates.
-
-When a workout plan is generated, the backend creates dated workout entries that appear in the calendar. These entries represent **real workout sessions** that users can complete and track.
-
-Each workout entry includes:
-
-- Workout date
-- List of exercises
-- Instructions for each exercise
-
-This structure allows users to plan workouts ahead of time while maintaining a clear log of completed training sessions.
-
-## Authentication Flow
-
-The application uses **JWT (JSON Web Tokens)** for authentication. After a user signs in or registers, the backend issues an access token that the frontend stores locally and attaches to API requests.
-
-### Sign Up / Sign In
-
-1. User submits credentials on the **Sign Up** or **Sign In** page.
-2. The frontend sends a request to the backend:
-
-POST `/users/register/`  
-POST `/users/login/`
-
-3. The backend responds with authentication tokens and user information.
-4. The frontend stores the **access token** in `localStorage`.
-
----
-
-### Authenticated Requests
-
-All API requests use an Axios instance configured in `apiConfig.js`.
-
-If a token exists, the request interceptor attaches it to the request header: Authorization: Bearer <token>
-
-This allows the backend to authenticate the user and return protected resources.
-
----
-
-### Session Verification
-
-When the application loads, `UserContext` checks whether a token exists.
-
-If a token is present, the frontend calls:
-
-GET `/users/token/refresh/`
-
-The backend returns a refreshed access token and user information, allowing the app to restore the user session without requiring the user to sign in again.
-
----
-
-### Sign Out
-
-Signing out removes the stored token from `localStorage`, which prevents further authenticated API requests.
-
-Once the token is removed, protected routes become inaccessible and the user is redirected to the public landing page.
-
-## Post-MVP Features
-
-Future improvements planned for the application include:
-
-- **Workout Completion Tracking**
-  - Allow users to mark workouts as completed and track completion streaks.
-
-- **Setting Goals**
-  - Allow users to defined their workout goals.
-
-- **Exercise Search and Filtering**
-  - Filter exercises by muscle group, equipment, or exercise type.
-
-- **Progress Analytics**
-  - Charts for weight trends and workout frequency over time
-
-- **Custom Workout Plans**
-  - Users can build personalized workout plans instead of only using admin-seeded plans.
-  - 
-- **Meal Tracking & Recipes**
-  - Allow users to track calories, macros and meals.
-  - Allow users to store recipes
-
-- **Workout Notes**
-  - Add notes to workouts or exercises (e.g., weights used, difficulty, comments).
-
-- **Exercise Favorites**
-  - Save frequently used exercises for quick access.
-
-- **Mobile UI Improvements**
-  - Improve layout and usability on smaller screens.
-
-- **Calendar Enhancements**
-  - Drag-and-drop workout scheduling.
-
-- **Social Features**
-  - Share workouts or progress with friends.
-
-
+- Access tokens are stored in `localStorage` and attached by the Axios client in `src/services/apiConfig.js`.
+- See the workspace root [README](/home/swein/projects/fitness-app/README.md) for the full repo layout and backend setup notes.
 

@@ -23,6 +23,8 @@ import "./Calendar.css";
 const MOBILE_MQ = "(max-width: 767px)";
 
 function workoutToCalendarEvent(workout) {
+  const startMs = new Date(workout.start_dt).getTime();
+  const endMs = new Date(workout.end_dt).getTime();
   return {
     id: workout.id,
     title: workout.title,
@@ -31,8 +33,30 @@ function workoutToCalendarEvent(workout) {
     extendedProps: {
       status: workout.status,
       notes: workout.notes,
+      end_dt: workout.end_dt,
+      durationMs:
+        Number.isFinite(startMs) && Number.isFinite(endMs)
+          ? Math.max(0, endMs - startMs)
+          : null,
     },
   };
+}
+
+function getEventDurationMs(event) {
+  const startMs = event?.start ? event.start.getTime() : null;
+  const endMs = event?.end
+    ? event.end.getTime()
+    : event?.extendedProps?.end_dt
+      ? new Date(event.extendedProps.end_dt).getTime()
+      : Number.isFinite(event?.extendedProps?.durationMs)
+        ? startMs + event.extendedProps.durationMs
+        : null;
+
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) {
+    return 60 * 60 * 1000;
+  }
+
+  return Math.max(0, endMs - startMs);
 }
 
 function refetchVisibleRange(calendarRef, fetchWorkouts) {
@@ -142,10 +166,7 @@ export default function Calendar({
   const handleEventDrop = async (dropInfo) => {
     const workoutId = dropInfo.event.id;
     const newStart = dropInfo.event.start;
-    const originalEnd = dropInfo.event.end;
-    const duration = originalEnd
-      ? originalEnd.getTime() - newStart.getTime()
-      : 60 * 60 * 1000;
+    const duration = getEventDurationMs(dropInfo.oldEvent ?? dropInfo.event);
     const newEnd = new Date(newStart.getTime() + duration);
 
     try {

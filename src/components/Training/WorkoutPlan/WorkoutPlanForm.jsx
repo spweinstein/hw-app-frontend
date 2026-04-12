@@ -84,13 +84,7 @@ export default function WorkoutPlanForm({
 
   useEffect(() => {
     reset(planDefaultsFromProps(defaultValues));
-  }, [
-    defaultValues?.title,
-    defaultValues?.description,
-    defaultValues?.is_public,
-    defaultValues?.template_links,
-    reset,
-  ]);
+  }, [defaultValues, reset]);
 
   return (
     <form

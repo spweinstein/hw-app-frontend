@@ -5,6 +5,7 @@ import {
   useParams,
   useSearchParams,
 } from "react-router";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ExerciseLibrary from "@/src/components/ExerciseLibrary/ExerciseLibrary.jsx";
 import WorkoutPlanList from "@/src/components/Training/WorkoutPlan/WorkoutPlanList.jsx";
@@ -35,11 +36,6 @@ export default function Explore() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const tab = typeof tabSegment === "string" ? tabSegment.toLowerCase() : "";
-  if (!VALID_EXPLORE_TABS.includes(tab)) {
-    return <Navigate to="/explore/exercises" replace />;
-  }
-
   const page = useMemo(
     () => parsePageParam(searchParams.get("page")),
     [searchParams],
@@ -65,6 +61,11 @@ export default function Explore() {
     },
     [setSearchParams],
   );
+
+  const tab = typeof tabSegment === "string" ? tabSegment.toLowerCase() : "";
+  if (!VALID_EXPLORE_TABS.includes(tab)) {
+    return <Navigate to="/explore/exercises" replace />;
+  }
 
   return (
     <div className="flex flex-col gap-8 px-4 py-8">

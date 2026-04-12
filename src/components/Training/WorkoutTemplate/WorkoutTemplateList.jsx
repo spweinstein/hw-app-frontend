@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Eye, Search } from "lucide-react";
 import {
   getTemplates,
@@ -30,8 +30,8 @@ import WorkoutTemplateRead from "./WorkoutTemplateRead.jsx";
 import WorkoutTemplateSchedulerPopover from "./WorkoutTemplateSchedulerPopover.jsx";
 import {
   EXPLORE_LIST_PAGE_SIZE,
-  matchesSearch,
-  paginateSlice,
+  getTotalPagesFromCount,
+  normalizeCatalogResponse,
 } from "@/src/components/Training/Explore/exploreListUtils.js";
 import { apiErrorMessage } from "@/src/utils/apiErrorMessage.js";
 
@@ -52,12 +52,12 @@ function suppressFocusSteal(e) {
 
 export default function WorkoutTemplateList({ page, onPageChange }) {
   const [items, setItems] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [viewTemplateId, setViewTemplateId] = useState(null);
   const [scheduleNotice, setScheduleNotice] = useState("");
-  const prevSearchRef = useRef(search);
 
   const handleSchedule = useCallback(async (template, { startISO }) => {
     setScheduleNotice("");
@@ -67,15 +67,33 @@ export default function WorkoutTemplateList({ page, onPageChange }) {
     );
   }, []);
 
+  const handleSearchChange = useCallback(
+    (event) => {
+      setSearch(event.target.value);
+      onPageChange(1);
+      setScheduleNotice("");
+    },
+    [onPageChange],
+  );
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       setError("");
       try {
-        const data = await getTemplates("public");
+        const data = await getTemplates({
+          scope: "public",
+          page,
+          pageSize: EXPLORE_LIST_PAGE_SIZE,
+          search,
+        });
         if (!cancelled) {
-          setItems(Array.isArray(data) ? data : []);
+          const { results, count } = normalizeCatalogResponse(data);
+          setItems(results);
+          setTotalPages(
+            getTotalPagesFromCount(count, EXPLORE_LIST_PAGE_SIZE),
+          );
         }
       } catch (err) {
         if (!cancelled) {
@@ -88,37 +106,15 @@ export default function WorkoutTemplateList({ page, onPageChange }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [page, search]);
 
-  const filtered = useMemo(() => {
-    return items.filter((t) =>
-      matchesSearch(search, [
-        t.title,
-        t.description,
-        formatTemplateOwner(t),
-        t.user != null ? String(t.user) : null,
-      ]),
-    );
-  }, [items, search]);
-
-  const { slice, totalPages, safePage } = useMemo(
-    () => paginateSlice(filtered, page, EXPLORE_LIST_PAGE_SIZE),
-    [filtered, page],
-  );
+  const safePage = Math.min(Math.max(1, page), totalPages);
 
   useEffect(() => {
     if (page !== safePage) {
       onPageChange(safePage);
     }
   }, [page, safePage, onPageChange]);
-
-  useEffect(() => {
-    if (prevSearchRef.current !== search) {
-      prevSearchRef.current = search;
-      onPageChange(1);
-      setScheduleNotice("");
-    }
-  }, [search, onPageChange]);
 
   if (loading) {
     return (
@@ -159,7 +155,7 @@ export default function WorkoutTemplateList({ page, onPageChange }) {
             type="search"
             placeholder="Search templates by title, description, or author…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
             aria-label="Search templates"
           />
         </InputGroup>
@@ -175,7 +171,7 @@ export default function WorkoutTemplateList({ page, onPageChange }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {slice.length === 0 ? (
+            {items.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={5}
@@ -185,7 +181,7 @@ export default function WorkoutTemplateList({ page, onPageChange }) {
                 </TableCell>
               </TableRow>
             ) : (
-              slice
+              items
                 .filter((t) => t.is_rest_placeholder === false)
                 .map((t) => (
                   <TableRow key={t.id}>

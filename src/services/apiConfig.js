@@ -1,12 +1,5 @@
 import axios from "axios";
 
-const getToken = () => {
-  return new Promise((resolve) => {
-    const token = localStorage.getItem("token");
-    resolve(token ? `Bearer ${token}` : null);
-  });
-};
-
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_BACK_END_SERVER_URL}`,
 });

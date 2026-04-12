@@ -1,8 +1,22 @@
 import api from "./apiConfig.js";
 
-export const getPlans = async (scope = "all") => {
+function normalizeCatalogOptions(options = {}) {
+  if (typeof options === "string") {
+    return { scope: options };
+  }
+  return options ?? {};
+}
+
+export const getPlans = async (options = {}) => {
+  const { scope = "all", page, pageSize, search } = normalizeCatalogOptions(
+    options,
+  );
+  const params = { scope };
+  if (page != null) params.page = page;
+  if (pageSize != null) params.page_size = pageSize;
+  if (search && search.trim()) params.search = search.trim();
   const resp = await api.get("api/workout-plans/", {
-    params: { scope },
+    params,
   });
   return resp.data;
 };

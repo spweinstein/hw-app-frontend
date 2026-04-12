@@ -37,13 +37,7 @@ export default function WorkoutTemplateForm({
 
   useEffect(() => {
     reset(defaultsFromProps(defaultValues));
-  }, [
-    defaultValues?.title,
-    defaultValues?.description,
-    defaultValues?.duration,
-    defaultValues?.items,
-    reset,
-  ]);
+  }, [defaultValues, reset]);
 
   return (
     <form

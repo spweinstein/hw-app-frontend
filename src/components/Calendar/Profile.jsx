@@ -20,7 +20,6 @@ const Profile = () => {
   const [date, setDate] = useState("");
 
   const [weightLogs, setWeightLogs] = useState([]);
-  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {

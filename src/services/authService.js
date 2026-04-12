@@ -1,34 +1,20 @@
 import api from "./apiConfig.js";
 
 export const signUp = async (credentials) => {
-  try {
-    const resp = await api.post("/users/register/", credentials);
-    localStorage.setItem("token", resp.data.access);
-    return resp.data.user;
-  } catch (error) {
-    throw error;
-  }
+  const resp = await api.post("/users/register/", credentials);
+  localStorage.setItem("token", resp.data.access);
+  return resp.data.user;
 };
 
 export const signIn = async (credentials) => {
-  try {
-    console.log("I'm in signIn function");
-    const resp = await api.post("/users/login/", credentials);
-    console.log("resp: ", resp);
-    localStorage.setItem("token", resp.data.access);
-    return resp.data.user;
-  } catch (error) {
-    throw error;
-  }
+  const resp = await api.post("/users/login/", credentials);
+  localStorage.setItem("token", resp.data.access);
+  return resp.data.user;
 };
 
 export const signOut = async () => {
-  try {
-    localStorage.removeItem("token");
-    return true;
-  } catch (error) {
-    throw error;
-  }
+  localStorage.removeItem("token");
+  return true;
 };
 
 export const verifyUser = async () => {

@@ -1,7 +1,12 @@
 import { Link } from "react-router";
 import "./Landing.css";
 
+import { useContext } from "react";
+import { UserContext } from "../../contexts/UserContext.jsx";
+
 const Landing = () => {
+  const { user } = useContext(UserContext);
+
   return (
     <div className="landing-page">
       <main className="landing-content">
@@ -19,14 +24,30 @@ const Landing = () => {
 
         <div className="cta-group">
           {/* Link to Sign Up */}
-          <Link to="/sign-up" className="btn btn-primary">
-            Get Started
-          </Link>
+          {user ? (
+            <>
+              <Link to="/profile" className="btn btn-primary">
+                Profile
+              </Link>
+              <Link to="/explore" className="btn btn-primary">
+                Explore
+              </Link>
+              <Link to="/training" className="btn btn-primary">
+                Training
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/sign-up" className="btn btn-primary">
+                Get Started
+              </Link>
 
-          {/* Link to Sign In */}
-          <Link to="/sign-in" className="btn btn-secondary">
-            Sign In
-          </Link>
+              {/* Link to Sign In */}
+              <Link to="/sign-in" className="btn btn-secondary">
+                Sign In
+              </Link>
+            </>
+          )}
         </div>
       </main>
     </div>
